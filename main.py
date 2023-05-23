@@ -121,7 +121,7 @@ class DataBase:
         conn.close()
     
     def create_beneficio(self, beneficio: Beneficio):
-        sql = '''INSERT INTO INSERT INTO Beneficio (categoria_plano, beneficio)
+        sql = '''INSERT INTO INSERT INTO Beneficios (categoria_plano, beneficio)
                 VALUES(?,?) '''
         
         params = (beneficio.categoria_plano, beneficio.beneficio)
@@ -147,7 +147,16 @@ class DataBase:
         conn.close()
 
     def create_associacao(self, associacao: Assossiacao):
-        pass
+        sql = '''INSERT INTO INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
+                VALUES(?,?,?) '''
+        
+        params = (associacao.id_equipe, associacao.cpf_socio, associacao.id_contrato)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def update_associacao(self, associacao: Assossiacao):
         pass

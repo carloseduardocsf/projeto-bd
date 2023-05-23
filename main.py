@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from models import Socio, Equipe, Plano, Contrato, Beneficio, Assossiacao
-import datetime
+from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao
+from typing import List
 import sqlite3
 
 
@@ -176,8 +176,8 @@ class DataBase:
         conn.commit()
         conn.close()
 
-    def create_associacao(self, associacao: Assossiacao):
-        sql = '''INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
+    def create_associacao(self, associacao: Associacao):
+        sql = '''INSERT INTO Associacoes (id_equipe, cpf_socio, id_contrato)
                 VALUES(?,?,?) '''
         
         params = (associacao.id_equipe, associacao.cpf_socio, associacao.id_contrato)
@@ -188,8 +188,8 @@ class DataBase:
         conn.commit()
         conn.close()
 
-    def delete_associacao(self, associacao: Assossiacao):
-        sql = 'DELETE FROM Assossiacoes WHERE cpf_socio=? AND id_equipe=? AND id_contrato=?'
+    def delete_associacao(self, associacao: Associacao):
+        sql = 'DELETE FROM Associacoes WHERE cpf_socio=? AND id_equipe=? AND id_contrato=?'
 
         params = (associacao.cpf_socio, associacao.id_equipe, associacao.id_contrato)
 
@@ -381,7 +381,7 @@ class DataBase:
 
         associacoes = list()
         for r in res:
-            associacoes.append(Assossiacao(cpf_socio=r[0], id_equipe=r[1], id_contrato=r[2]))
+            associacoes.append(Associacao(cpf_socio=r[0], id_equipe=r[1], id_contrato=r[2]))
         
         return associacoes
 
@@ -392,6 +392,26 @@ db = DataBase('./bd/data.db')
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@app.get("/socios")
+async def get_socios() -> List[Socio]:
+    return db.get_socio()
+
+@app.get("/equipes")
+async def get_equipes() -> List[Equipe]:
+    return db.get_equipe()
+
+@app.get("/planos")
+async def get_plano() -> List[Plano]:
+    return db.get_plano()
+
+@app.get("/contratos")
+async def get_contratos() -> List[Contrato]:
+    return db.get_contrato
+
+@app.get("/associacoes")
+async def get_associacoes() -> List[Associacao]:
+    return db.get_associacoes()
 
 @app.post("/socios")
 async def create_socio(socio: Socio) -> Socio:
@@ -423,8 +443,8 @@ async def create_beneficio(beneficio: Beneficio) -> Beneficio:
     
     return beneficio
 
-@app.post("/assossiacoes")
-async def create_associacao(associacao: Assossiacao) -> Assossiacao:
+@app.post("/associacoes")
+async def create_associacao(associacao: Associacao) -> Associacao:
     db.create_associacao(associacao=associacao)
     
     return associacao

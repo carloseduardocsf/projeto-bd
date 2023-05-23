@@ -57,7 +57,7 @@ VALUES
     ('A', 'Participar de Promoções e Eventos Promovidos'),
     ('A', 'Votar para presidente do clube a partir de 3 (três) anos consecutivos de vida associativa');
 
-INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
+INSERT INTO Associacoes (id_equipe, cpf_socio, id_contrato)
 VALUES
     (1, '518.717.860-10', 1),
     (1, '958.174.510-69', 2),

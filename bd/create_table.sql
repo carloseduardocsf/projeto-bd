@@ -46,7 +46,7 @@ CREATE TABLE Beneficios (
         ON DELETE CASCADE
 );
 
-CREATE TABLE Assossiacoes (
+CREATE TABLE Associacoes (
     cpf_socio char(14),
     id_equipe INTEGER,
     id_contrato INTEGER,

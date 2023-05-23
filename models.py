@@ -32,7 +32,7 @@ class Beneficio(BaseModel):
     categoria_plano: constr(min_length=1, max_length=1)
     beneficio: constr(max_length=100)
 
-class Assossiacao(BaseModel):
+class Associacao(BaseModel):
     cpf_socio: constr(min_length=14, max_length=14)
     id_equipe: int
     id_contrato: int

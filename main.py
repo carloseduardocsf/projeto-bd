@@ -29,7 +29,15 @@ class DataBase:
         conn.close()
 
     def update_socio(self, socio: Socio):
-        pass
+        sql = ''' UPDATE Socios SET nome=?, email=?, telefone=?, dt_nascimento=?, dt_cadastro=? WHERE cpf=? '''
+
+        params = (socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro, socio.cpf)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def delete_socio(self, socio: Socio):
         pass
@@ -47,7 +55,15 @@ class DataBase:
         conn.close()
 
     def update_equipe(self, equipe: Equipe):
-        pass
+        sql = ''' UPDATE Equipes SET cnpj=?, nome=?, endereco=?, email=? WHERE id=? '''
+
+        params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email, equipe.id)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def delete_equipe(self, equipe: Equipe):
         pass
@@ -65,7 +81,15 @@ class DataBase:
         conn.close()
 
     def update_plano(self, plano: Plano):
-        pass
+        sql = ''' UPDATE Planos SET valor=? WHERE categoria=? '''
+
+        params = (plano.valor, plano.categoria)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def delete_plano(self, plano: Plano):
         pass
@@ -83,7 +107,15 @@ class DataBase:
         conn.close()
 
     def update_contrato(self, contrato: Contrato):
-        pass
+        sql = ''' UPDATE Contratos SET dt_associacao=?, dt_expiracao=?, qtd_meses=?, categoria_plano=? WHERE id=? '''
+
+        params = (contrato.dt_associacao, contrato.dt_expiracao, contrato.qtd_meses, contrato.categoria_plano, contrato.id)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def delete_contrato(self, contrato: Contrato):
         pass
@@ -100,16 +132,10 @@ class DataBase:
         conn.commit()
         conn.close()
 
-    def update_beneficio(self, beneficio: Beneficio):
-        pass
-
     def delete_beneficio(self, beneficio: Beneficio):
         pass
 
     def create_associacao(self, associacao: Assossiacao):
-        pass
-
-    def update_associacao(self, associacao: Assossiacao):
         pass
 
     def delete_associacao(self, associacao: Assossiacao):

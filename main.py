@@ -387,7 +387,44 @@ class DataBase:
 
 
 app = FastAPI()
+db = DataBase('./bd/data.db')
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@app.post("/socios")
+async def create_socio(socio: Socio) -> Socio:
+    db.create_socio(socio=socio)
+    
+    return db.get_socio_by_id(socio.cpf)
+
+@app.post("/equipes")
+async def create_equipe(equipe: Equipe) -> Equipe:
+    db.create_equipe(equipe=equipe)
+    
+    return db.get_equipe_by_name(equipe.nome)[0]
+
+@app.post("/planos")
+async def create_plano(plano: Plano) -> Plano:
+    db.create_plano(plano=plano)
+    
+    return db.get_plano_by_id(plano.categoria)
+
+@app.post("/contratos")
+async def create_contrato(contrato: Contrato) -> Contrato:
+    db.create_contrato(contrato=contrato)
+    
+    return contrato
+
+@app.post("/beneficios")
+async def create_beneficio(beneficio: Beneficio) -> Beneficio:
+    db.create_beneficio(beneficio=beneficio)
+    
+    return beneficio
+
+@app.post("/assossiacoes")
+async def create_associacao(associacao: Assossiacao) -> Assossiacao:
+    db.create_associacao(associacao=associacao)
+    
+    return associacao

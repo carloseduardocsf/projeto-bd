@@ -202,7 +202,17 @@ class DataBase:
         pass
 
     def get_socio_by_id(self, cpf):
-        pass
+        sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socios WHERE cpf=? '''
+
+        params = (cpf)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close
+
+        return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) 
     
     def get_socio_by_name(self, nome):
         pass
@@ -211,7 +221,17 @@ class DataBase:
         pass
 
     def get_equipe_by_id(self, id):
-        pass
+        sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipes WHERE id=? '''
+
+        params = (id)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close
+
+        return Equipe(id=res[0], cnpj=res[1], nome=res[2], endereco=res[3], email=res[4]) 
     
     def get_equipe_by_name(self, nome):
         pass
@@ -220,13 +240,33 @@ class DataBase:
         pass
 
     def get_plano_by_id(self, categoria):
-        pass
+        sql = ''' SELECT categoria, valor FROM Planos WHERE categoria=? '''
+
+        params = (categoria)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close
+
+        return Plano(categoria=res[0], valor=res[1])
 
     def get_contrato(self):
         pass
 
     def get_contrato_by_id(self, id):
-        pass
+        sql = ''' SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM Contratos WHERE id=? '''
+
+        params = (id)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close
+
+        return Contrato(id=res[0], dt_associacao=res[1], dt_expiracao=res[2], qtd_meses=res[3], categoria_plano=res[4]) 
 
     def get_beneficio_by_cat(self, categoria):
         pass

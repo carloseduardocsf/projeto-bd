@@ -40,7 +40,15 @@ class DataBase:
         conn.close()
 
     def delete_socio(self, socio: Socio):
-        pass
+        sql = 'DELETE FROM Socios WHERE cpf=?'
+
+        params = (socio.cpf)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def create_equipe(self, equipe: Equipe):
         sql = '''INSERT INTO INSERT INTO Equipes (cnpj, nome, endereco, email)
@@ -66,7 +74,15 @@ class DataBase:
         conn.close()
 
     def delete_equipe(self, equipe: Equipe):
-        pass
+        sql = 'DELETE FROM Equipes WHERE id=?'
+
+        params = (equipe.id)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def create_plano(self, plano: Plano):
         sql = '''INSERT INTO INSERT INTO Planos (categoria, valor)
@@ -92,7 +108,15 @@ class DataBase:
         conn.close()
 
     def delete_plano(self, plano: Plano):
-        pass
+        sql = 'DELETE FROM Planos WHERE categoria=?'
+
+        params = (plano.categoria)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
     
     def create_contrato(self, contrato: Contrato):
         sql = '''INSERT INTO INSERT INTO Contratos (dt_associacao, dt_expiracao, qtd_meses, categoria_plano)
@@ -118,10 +142,18 @@ class DataBase:
         conn.close()
 
     def delete_contrato(self, contrato: Contrato):
-        pass
+        sql = 'DELETE FROM Contratos WHERE id=?'
+
+        params = (contrato.id)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
     
     def create_beneficio(self, beneficio: Beneficio):
-        sql = '''INSERT INTO INSERT INTO Beneficio (categoria_plano, beneficio)
+        sql = '''INSERT INTO INSERT INTO Beneficios (categoria_plano, beneficio)
                 VALUES(?,?) '''
         
         params = (beneficio.categoria_plano, beneficio.beneficio)
@@ -133,13 +165,38 @@ class DataBase:
         conn.close()
 
     def delete_beneficio(self, beneficio: Beneficio):
-        pass
+        sql = 'DELETE FROM Beneficios WHERE categoria_plano=? AND beneficio=?'
+
+        params = (beneficio.categoria_plano, beneficio.beneficio)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def create_associacao(self, associacao: Assossiacao):
-        pass
+        sql = '''INSERT INTO INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
+                VALUES(?,?,?) '''
+        
+        params = (associacao.id_equipe, associacao.cpf_socio, associacao.id_contrato)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        conn.commit()
+        conn.close()
 
     def delete_associacao(self, associacao: Assossiacao):
-        pass
+        sql = 'DELETE FROM Assossiacoes WHERE cpf_socio=? AND id_equipe=? AND id_contrato=?'
+
+        params = (associacao.cpf_socio, associacao.id_equipe, associacao.id_contrato)
+
+        conn = self._create_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql, params)
+        conn.commit()
+        conn.close()
 
 
 app = FastAPI()

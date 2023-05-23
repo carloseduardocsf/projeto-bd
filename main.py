@@ -198,6 +198,42 @@ class DataBase:
         conn.commit()
         conn.close()
 
+    def get_socio(self):
+        pass
+
+    def get_socio_by_id(self, cpf):
+        pass
+    
+    def get_socio_by_name(self, nome):
+        pass
+
+    def get_equipe(self):
+        pass
+
+    def get_equipe_by_id(self, id):
+        pass
+    
+    def get_equipe_by_name(self, nome):
+        pass
+
+    def get_plano(self):
+        pass
+
+    def get_plano_by_id(self, categoria):
+        pass
+
+    def get_contrato(self):
+        pass
+
+    def get_contrato_by_id(self, id):
+        pass
+
+    def get_beneficio_by_cat(self, categoria):
+        pass
+
+    def get_associacoes(self):
+        pass
+
 
 app = FastAPI()
 

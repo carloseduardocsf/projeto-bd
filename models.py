@@ -5,8 +5,8 @@ from datetime import date
 class Socio(BaseModel):
     cpf: constr(min_length=14, max_length=14)
     nome: constr(max_length=60)
-    email: EmailStr
-    telefone: constr(max_length=19)
+    email: constr(max_length=40)
+    telefone: constr(max_length=19) | None = None
     dt_nascimento: date
     dt_cadastro: date
 
@@ -15,7 +15,7 @@ class Equipe(BaseModel):
     cnpj: constr(min_length=18, max_length=18)
     nome: constr(max_length=30)
     endereco: constr(max_length=100)
-    email: EmailStr
+    email: constr(max_length=40)
 
 class Plano(BaseModel):
     categoria: constr(min_length=1, max_length=1)

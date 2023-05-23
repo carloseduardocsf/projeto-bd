@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from models import Socio, Equipe, Plano, Contrato, Beneficio, Assossiacao
+import datetime
 import sqlite3
 
 
@@ -17,7 +18,7 @@ class DataBase:
         return conn
     
     def create_socio(self, socio: Socio):
-        sql = '''INSERT INTO INSERT INTO Socios (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
+        sql = '''INSERT INTO Socios (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
                 VALUES(?,?,?,?,?,?) '''
         
         params = (socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro)
@@ -42,7 +43,7 @@ class DataBase:
     def delete_socio(self, socio: Socio):
         sql = 'DELETE FROM Socios WHERE cpf=?'
 
-        params = (socio.cpf)
+        params = (socio.cpf,)
 
         conn = self._create_connection()
         cursor = conn.cursor()
@@ -51,7 +52,7 @@ class DataBase:
         conn.close()
 
     def create_equipe(self, equipe: Equipe):
-        sql = '''INSERT INTO INSERT INTO Equipes (cnpj, nome, endereco, email)
+        sql = '''INSERT INTO Equipes (cnpj, nome, endereco, email)
                 VALUES(?,?,?,?) '''
         
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email)
@@ -76,7 +77,7 @@ class DataBase:
     def delete_equipe(self, equipe: Equipe):
         sql = 'DELETE FROM Equipes WHERE id=?'
 
-        params = (equipe.id)
+        params = (equipe.id,)
 
         conn = self._create_connection()
         cursor = conn.cursor()
@@ -85,7 +86,7 @@ class DataBase:
         conn.close()
 
     def create_plano(self, plano: Plano):
-        sql = '''INSERT INTO INSERT INTO Planos (categoria, valor)
+        sql = '''INSERT INTO Planos (categoria, valor)
                 VALUES(?,?) '''
         
         params = (plano.categoria, plano.valor)
@@ -110,7 +111,7 @@ class DataBase:
     def delete_plano(self, plano: Plano):
         sql = 'DELETE FROM Planos WHERE categoria=?'
 
-        params = (plano.categoria)
+        params = (plano.categoria,)
 
         conn = self._create_connection()
         cursor = conn.cursor()
@@ -119,7 +120,7 @@ class DataBase:
         conn.close()
     
     def create_contrato(self, contrato: Contrato):
-        sql = '''INSERT INTO INSERT INTO Contratos (dt_associacao, dt_expiracao, qtd_meses, categoria_plano)
+        sql = '''INSERT INTO Contratos (dt_associacao, dt_expiracao, qtd_meses, categoria_plano)
                 VALUES(?,?,?,?) '''
         
         params = (contrato.dt_associacao, contrato.dt_expiracao, contrato.qtd_meses, contrato.categoria_plano)
@@ -144,7 +145,7 @@ class DataBase:
     def delete_contrato(self, contrato: Contrato):
         sql = 'DELETE FROM Contratos WHERE id=?'
 
-        params = (contrato.id)
+        params = (contrato.id,)
 
         conn = self._create_connection()
         cursor = conn.cursor()
@@ -153,7 +154,7 @@ class DataBase:
         conn.close()
     
     def create_beneficio(self, beneficio: Beneficio):
-        sql = '''INSERT INTO INSERT INTO Beneficios (categoria_plano, beneficio)
+        sql = '''INSERT INTO Beneficios (categoria_plano, beneficio)
                 VALUES(?,?) '''
         
         params = (beneficio.categoria_plano, beneficio.beneficio)
@@ -176,7 +177,7 @@ class DataBase:
         conn.close()
 
     def create_associacao(self, associacao: Assossiacao):
-        sql = '''INSERT INTO INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
+        sql = '''INSERT INTO Assossiacoes (id_equipe, cpf_socio, id_contrato)
                 VALUES(?,?,?) '''
         
         params = (associacao.id_equipe, associacao.cpf_socio, associacao.id_contrato)
@@ -217,7 +218,7 @@ class DataBase:
     def get_socio_by_id(self, cpf):
         sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socios WHERE cpf=? '''
 
-        params = (cpf)
+        params = (cpf,)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -231,7 +232,7 @@ class DataBase:
         sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
                 Socios WHERE nome LIKE ?'''
         
-        params = ('%' + nome + '%')
+        params = ('%' + nome + '%',)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -264,7 +265,7 @@ class DataBase:
     def get_equipe_by_id(self, id):
         sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipes WHERE id=? '''
 
-        params = (id)
+        params = (id,)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -278,7 +279,7 @@ class DataBase:
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
                 Equipes WHERE nome LIKE ?'''
         
-        params = ('%' + nome + '%')
+        params = ('%' + nome + '%',)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -311,7 +312,7 @@ class DataBase:
     def get_plano_by_id(self, categoria):
         sql = ''' SELECT categoria, valor FROM Planos WHERE categoria=? '''
 
-        params = (categoria)
+        params = (categoria,)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -340,7 +341,7 @@ class DataBase:
     def get_contrato_by_id(self, id):
         sql = ''' SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM Contratos WHERE id=? '''
 
-        params = (id)
+        params = (id,)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -354,7 +355,7 @@ class DataBase:
         sql = '''SELECT categoria_plano, beneficio FROM
                 Beneficios WHERE categoria_plano = ?'''
         
-        params = (categoria)
+        params = (categoria,)
 
         conn = self._create_connection()
         cur = conn.cursor()

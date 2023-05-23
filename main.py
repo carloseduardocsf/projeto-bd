@@ -199,7 +199,20 @@ class DataBase:
         conn.close()
 
     def get_socio(self):
-        pass
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
+                Socios'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        socios = list()
+        for r in res:
+            socios.append(Socio(cpf=r[0], nome=r[1], email=r[2], telefone=r[3], dt_nascimento=r[4], dt_cadastro=r[5]))
+        
+        return socios
 
     def get_socio_by_id(self, cpf):
         sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socios WHERE cpf=? '''
@@ -215,10 +228,38 @@ class DataBase:
         return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) 
     
     def get_socio_by_name(self, nome):
-        pass
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
+                Socios WHERE nome LIKE ?'''
+        
+        params = ('%' + nome + '%')
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchall()
+        conn.close()
+
+        socios = list()
+        for r in res:
+            socios.append(Socio(cpf=r[0], nome=r[1], email=r[2], telefone=r[3], dt_nascimento=r[4], dt_cadastro=r[5]))
+        
+        return socios
 
     def get_equipe(self):
-        pass
+        sql = '''SELECT id, cnpj, nome, endereco, email FROM
+                Equipes'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        equipes = list()
+        for r in res:
+            equipes.append(Equipe(id=r[0], cnpj=r[1], nome=r[2], endereco=r[3], email=r[4]))
+        
+        return equipes
 
     def get_equipe_by_id(self, id):
         sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipes WHERE id=? '''
@@ -234,10 +275,38 @@ class DataBase:
         return Equipe(id=res[0], cnpj=res[1], nome=res[2], endereco=res[3], email=res[4]) 
     
     def get_equipe_by_name(self, nome):
-        pass
+        sql = '''SELECT id, cnpj, nome, endereco, email FROM
+                Equipes WHERE nome LIKE ?'''
+        
+        params = ('%' + nome + '%')
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchall()
+        conn.close()
+
+        equipes = list()
+        for r in res:
+            equipes.append(Equipe(id=r[0], cnpj=r[1], nome=r[2], endereco=r[3], email=r[4]))
+        
+        return equipes
 
     def get_plano(self):
-        pass
+        sql = '''SELECT categoria, valor FROM
+                Planos'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        planos = list()
+        for r in res:
+            planos.append(Plano(categoria=r[0], valor=r[1]))
+        
+        return planos
 
     def get_plano_by_id(self, categoria):
         sql = ''' SELECT categoria, valor FROM Planos WHERE categoria=? '''
@@ -253,7 +322,20 @@ class DataBase:
         return Plano(categoria=res[0], valor=res[1])
 
     def get_contrato(self):
-        pass
+        sql = '''SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM
+                Contratos'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        contratos = list()
+        for r in res:
+            contratos.append(Contrato(id=r[0], dt_associacao=r[1], dt_expiracao=r[2], qtd_meses=r[3], categoria_plano=r[4]))
+        
+        return contratos
 
     def get_contrato_by_id(self, id):
         sql = ''' SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM Contratos WHERE id=? '''
@@ -269,10 +351,38 @@ class DataBase:
         return Contrato(id=res[0], dt_associacao=res[1], dt_expiracao=res[2], qtd_meses=res[3], categoria_plano=res[4]) 
 
     def get_beneficio_by_cat(self, categoria):
-        pass
+        sql = '''SELECT categoria_plano, beneficio FROM
+                Beneficios WHERE categoria_plano = ?'''
+        
+        params = (categoria)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchall()
+        conn.close()
+
+        beneficios = list()
+        for r in res:
+            beneficios.append(Beneficio(categoria_plano=r[0], beneficio=r[1]))
+        
+        return beneficios
 
     def get_associacoes(self):
-        pass
+        sql = '''SELECT cpf_socio, id_equipe, id_contrato FROM
+                Associacoes'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        associacoes = list()
+        for r in res:
+            associacoes.append(Assossiacao(cpf_socio=r[0], id_equipe=r[1], id_contrato=r[2]))
+        
+        return associacoes
 
 
 app = FastAPI()

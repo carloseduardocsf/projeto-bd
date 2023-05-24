@@ -199,7 +199,7 @@ class DataBase:
         conn.commit()
         conn.close()
 
-    def get_socio(self):
+    def get_socios(self):
         sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
                 Socios'''
 
@@ -246,7 +246,7 @@ class DataBase:
         
         return socios
 
-    def get_equipe(self):
+    def get_equipes(self):
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
                 Equipes'''
 
@@ -293,7 +293,7 @@ class DataBase:
         
         return equipes
 
-    def get_plano(self):
+    def get_planos(self):
         sql = '''SELECT categoria, valor FROM
                 Planos'''
 
@@ -322,7 +322,7 @@ class DataBase:
 
         return Plano(categoria=res[0], valor=res[1])
 
-    def get_contrato(self):
+    def get_contratos(self):
         sql = '''SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM
                 Contratos'''
 
@@ -369,6 +369,22 @@ class DataBase:
         
         return beneficios
 
+    def get_beneficios(self):
+        sql = '''SELECT categoria_plano, beneficio FROM
+                Beneficios'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        beneficios = list()
+        for r in res:
+            beneficios.append(Beneficio(categoria_plano=r[0], beneficio=r[1]))
+        
+        return beneficios
+
     def get_associacoes(self):
         sql = '''SELECT cpf_socio, id_equipe, id_contrato FROM
                 Associacoes'''
@@ -395,19 +411,23 @@ async def root():
 
 @app.get("/socios")
 async def get_socios() -> List[Socio]:
-    return db.get_socio()
+    return db.get_socios()
 
 @app.get("/equipes")
 async def get_equipes() -> List[Equipe]:
-    return db.get_equipe()
+    return db.get_equipes()
 
 @app.get("/planos")
 async def get_plano() -> List[Plano]:
-    return db.get_plano()
+    return db.get_planos()
 
 @app.get("/contratos")
 async def get_contratos() -> List[Contrato]:
-    return db.get_contrato
+    return db.get_contratos()
+
+@app.get("/beneficios")
+async def get_beneficios() ->List[Beneficio]:
+    return db.get_beneficios()
 
 @app.get("/associacoes")
 async def get_associacoes() -> List[Associacao]:

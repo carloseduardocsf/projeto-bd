@@ -226,7 +226,7 @@ class DataBase:
         res = cur.fetchone()
         conn.close
 
-        return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) 
+        return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) if res else None
     
     def get_socio_by_name(self, nome):
         sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
@@ -273,7 +273,7 @@ class DataBase:
         res = cur.fetchone()
         conn.close
 
-        return Equipe(id=res[0], cnpj=res[1], nome=res[2], endereco=res[3], email=res[4]) 
+        return Equipe(id=res[0], cnpj=res[1], nome=res[2], endereco=res[3], email=res[4]) if res else None
     
     def get_equipe_by_name(self, nome):
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
@@ -320,7 +320,7 @@ class DataBase:
         res = cur.fetchone()
         conn.close
 
-        return Plano(categoria=res[0], valor=res[1])
+        return Plano(categoria=res[0], valor=res[1]) if res else None
 
     def get_contratos(self):
         sql = '''SELECT id, dt_associacao, dt_expiracao, qtd_meses, categoria_plano FROM
@@ -349,7 +349,7 @@ class DataBase:
         res = cur.fetchone()
         conn.close
 
-        return Contrato(id=res[0], dt_associacao=res[1], dt_expiracao=res[2], qtd_meses=res[3], categoria_plano=res[4]) 
+        return Contrato(id=res[0], dt_associacao=res[1], dt_expiracao=res[2], qtd_meses=res[3], categoria_plano=res[4]) if res else None
 
     def get_beneficio_by_cat(self, categoria):
         sql = '''SELECT categoria_plano, beneficio FROM

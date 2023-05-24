@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate, BeneficioUpdate, AssociacaoUpdate
+from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate
 from typing import List
 from bd.db import DataBase
 
@@ -117,3 +117,79 @@ async def create_associacao(associacao: Associacao) -> Associacao:
     db.create_associacao(associacao=associacao)
     
     return associacao
+
+@app.put("/socios/{cpf}")
+async def update_socios(cpf: str, socio: SocioUpdate) -> Socio:
+    atual = db.get_socio_by_id(cpf=cpf)
+
+    if atual is None:
+        raise HTTPException(status_code=404, detail=f'Sócio com cpf: {cpf} não foi encontrado')
+
+    new_values = socio.dict(exclude_none=True)
+
+    for key, value in atual.dict().items():
+        if key not in new_values.keys():
+            new_values[key] = value
+    
+    updated = Socio(**new_values)
+
+    db.update_socio(socio=updated)
+
+    return updated
+
+@app.put("/equipes/{id}")
+async def update_equipes(id: int, equipe: EquipeUpdate) -> Equipe:
+    atual = db.get_equipe_by_id(id=id)
+
+    if atual is None:
+        raise HTTPException(status_code=404, detail=f'Equipe com id: {id} não foi encontrada')
+
+    new_values = equipe.dict(exclude_none=True)
+
+    for key, value in atual.dict().items():
+        if key not in new_values.keys():
+            new_values[key] = value
+    
+    updated = Equipe(**new_values)
+
+    db.update_equipe(equipe=updated)
+
+    return updated
+
+@app.put("/planos/{categoria}")
+async def update_planos(categoria: str, plano: PlanoUpdate) -> Plano:
+    atual = db.get_plano_by_id(categoria=categoria)
+
+    if atual is None:
+        raise HTTPException(status_code=404, detail=f'Plano com categoria: {categoria} não foi encontrado')
+
+    new_values = plano.dict(exclude_none=True)
+
+    for key, value in atual.dict().items():
+        if key not in new_values.keys():
+            new_values[key] = value
+    
+    updated = Plano(**new_values)
+
+    db.update_plano(plano=updated)
+
+    return updated
+
+@app.put("/contratos/{id}")
+async def update_contratos(id: int, contrato: ContratoUpdate) -> Contrato:
+    atual = db.get_contrato_by_id(id=id)
+
+    if atual is None:
+        raise HTTPException(status_code=404, detail=f'Contrato com id: {id} não foi encontrado')
+
+    new_values = contrato.dict(exclude_none=True)
+
+    for key, value in atual.dict().items():
+        if key not in new_values.keys():
+            new_values[key] = value
+    
+    updated = Contrato(**new_values)
+
+    db.update_contrato(contrato=updated)
+
+    return updated

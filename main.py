@@ -193,3 +193,69 @@ async def update_contratos(id: int, contrato: ContratoUpdate) -> Contrato:
     db.update_contrato(contrato=updated)
 
     return updated
+
+@app.delete("/socios/{cpf}")
+async def delete_socio(cpf: str) -> Socio:
+    row = db.get_socio_by_id(cpf=cpf)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Sócio com cpf: {cpf} não foi encontrado')
+    
+    db.delete_socio(socio=row)
+
+    return row
+
+@app.delete("/equipes/{id}")
+async def delete_equipe(id: int) -> Equipe:
+    row = db.get_equipe_by_id(id=id)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Equipe com id: {id} não foi encontrada')
+    
+    db.delete_equipe(equipe=row)
+
+    return row
+
+@app.delete("/planos/{categoria}")
+async def delete_plano(categoria: str) -> Plano:
+    row = db.get_plano_by_id(categoria=categoria)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Plano com categoria: {categoria} não foi encontrado')
+    
+    db.delete_plano(plano=row)
+
+    return row
+
+@app.delete("/contratos/{id}")
+async def delete_contrato(id: int) -> Contrato:
+    row = db.get_contrato_by_id(id=id)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Contrato com id: {id} não foi encontrado')
+    
+    db.delete_contrato(contrato=row)
+
+    return row
+
+@app.delete("/beneficios/{categoria}/{beneficio}")
+async def delete_beneficio(categoria: str, beneficio: str) -> Beneficio:
+    row = db.get_beneficio_by_cat_ben(categoria=categoria, beneficio=beneficio)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Benefício com categoria {categoria} e descrição {beneficio} não foi encontrado')
+    
+    db.delete_beneficio(beneficio=row)
+
+    return row
+
+@app.delete("/associacoes/{cpf_socio}/{id_equipe}/{id_contrato}")
+async def delete_associacao(cpf_socio: str, id_equipe: int, id_contrato: int) -> Associacao:
+    row = db.get_associacoes_by_id(cpf_socio=cpf_socio, id_equipe=id_equipe, id_contrato=id_contrato)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail=f'Associação com cpf {cpf_socio}, equipe {id_equipe} e contrato {id_contrato} não foi encontrada')
+    
+    db.delete_associacao(associacao=row)
+
+    return row

@@ -367,6 +367,20 @@ class DataBase:
         
         return beneficios
 
+    def get_beneficio_by_cat_ben(self, categoria, beneficio):
+        sql = '''SELECT categoria_plano, beneficio FROM
+                Beneficios WHERE categoria_plano = ? AND beneficio = ?'''
+        
+        params = (categoria, beneficio)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return Beneficio(categoria_plano=res[0], beneficio=res[1]) if res else None
+
     def get_beneficios(self):
         sql = '''SELECT categoria_plano, beneficio FROM
                 Beneficios'''
@@ -398,3 +412,17 @@ class DataBase:
             associacoes.append(Associacao(cpf_socio=r[0], id_equipe=r[1], id_contrato=r[2]))
         
         return associacoes
+    
+    def get_associacoes_by_id(self, cpf_socio, id_equipe, id_contrato):
+        sql = '''SELECT cpf_socio, id_equipe, id_contrato FROM
+                Associacoes where cpf_socio = ? AND id_equipe = ? AND id_contrato = ?'''
+
+        params = (cpf_socio, id_equipe, id_contrato)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return Associacao(cpf_socio=res[0], id_equipe=res[1], id_contrato=res[2]) if res else None

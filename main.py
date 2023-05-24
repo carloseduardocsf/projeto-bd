@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate
+from bd.models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate
 from typing import List
 from bd.db import DataBase
 

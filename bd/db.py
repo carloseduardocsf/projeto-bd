@@ -1,4 +1,4 @@
-from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao
+from bd.models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao
 import sqlite3
 
 

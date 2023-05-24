@@ -1,6 +1,7 @@
 from models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao
 import sqlite3
 
+
 class DataBase:
     def __init__(self, db_file):
         self.db_file = db_file

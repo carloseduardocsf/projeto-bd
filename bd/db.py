@@ -21,11 +21,11 @@ class DataBase:
         
         params = (socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_socio(self, socio: Socio):
         sql = ''' UPDATE Socios SET nome=?, email=?, telefone=?, dt_nascimento=?, dt_cadastro=? WHERE cpf=? '''
@@ -55,11 +55,10 @@ class DataBase:
         
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_equipe(self, equipe: Equipe):
         sql = ''' UPDATE Equipes SET cnpj=?, nome=?, endereco=?, email=? WHERE id=? '''
@@ -89,11 +88,10 @@ class DataBase:
         
         params = (plano.categoria, plano.valor)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_plano(self, plano: Plano):
         sql = ''' UPDATE Planos SET valor=? WHERE categoria=? '''
@@ -123,11 +121,10 @@ class DataBase:
         
         params = (contrato.dt_associacao, contrato.dt_expiracao, contrato.qtd_meses, contrato.categoria_plano)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_contrato(self, contrato: Contrato):
         sql = ''' UPDATE Contratos SET dt_associacao=?, dt_expiracao=?, qtd_meses=?, categoria_plano=? WHERE id=? '''
@@ -157,11 +154,10 @@ class DataBase:
         
         params = (beneficio.categoria_plano, beneficio.beneficio)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def delete_beneficio(self, beneficio: Beneficio):
         sql = 'DELETE FROM Beneficios WHERE categoria_plano=? AND beneficio=?'
@@ -180,11 +176,10 @@ class DataBase:
         
         params = (associacao.id_equipe, associacao.cpf_socio, associacao.id_contrato)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def delete_associacao(self, associacao: Associacao):
         sql = 'DELETE FROM Associacoes WHERE cpf_socio=? AND id_equipe=? AND id_contrato=?'

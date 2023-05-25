@@ -2,13 +2,11 @@ from fastapi import FastAPI, HTTPException
 from bd.models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate, RelatorioReceita, RelatorioGastosSocios, RelatorioSociosAtivos
 from typing import List
 from bd.db import DataBase
+import sqlite3
 
 app = FastAPI()
 db = DataBase('./bd/data.db')
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
 
 @app.get("/socios")
 async def get_socios() -> List[Socio]:
@@ -84,39 +82,57 @@ async def get_associacoes() -> List[Associacao]:
 
 @app.post("/socios")
 async def create_socio(socio: Socio) -> Socio:
-    db.create_socio(socio=socio)
-    
-    return db.get_socio_by_id(socio.cpf)
+    try:
+        db.create_socio(socio=socio)
+        
+        return db.get_socio_by_id(socio.cpf)
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+        raise HTTPException(status_code=409, detail=repr(e))
 
 @app.post("/equipes")
 async def create_equipe(equipe: Equipe) -> Equipe:
-    db.create_equipe(equipe=equipe)
-    
-    return db.get_equipe_by_name(equipe.nome)[0]
+    try:
+        db.create_equipe(equipe=equipe)
+        
+        return db.get_equipe_by_name(equipe.nome)[0]
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+            raise HTTPException(status_code=409, detail=repr(e))
 
 @app.post("/planos")
 async def create_plano(plano: Plano) -> Plano:
-    db.create_plano(plano=plano)
-    
-    return db.get_plano_by_id(plano.categoria)
+    try:
+        db.create_plano(plano=plano)
+        
+        return db.get_plano_by_id(plano.categoria)
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+        raise HTTPException(status_code=409, detail=repr(e))
 
 @app.post("/contratos")
 async def create_contrato(contrato: Contrato) -> Contrato:
-    db.create_contrato(contrato=contrato)
-    
-    return contrato
+    try:
+        db.create_contrato(contrato=contrato)
+        
+        return contrato
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+        raise HTTPException(status_code=409, detail=repr(e))
 
 @app.post("/beneficios")
 async def create_beneficio(beneficio: Beneficio) -> Beneficio:
-    db.create_beneficio(beneficio=beneficio)
-    
-    return beneficio
+    try:
+        db.create_beneficio(beneficio=beneficio)
+        
+        return beneficio
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+        raise HTTPException(status_code=409, detail=repr(e))
 
 @app.post("/associacoes")
 async def create_associacao(associacao: Associacao) -> Associacao:
-    db.create_associacao(associacao=associacao)
-    
-    return associacao
+    try:
+        db.create_associacao(associacao=associacao)
+        
+        return associacao
+    except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+        raise HTTPException(status_code=409, detail=repr(e))
 
 @app.put("/socios/{cpf}")
 async def update_socios(cpf: str, socio: SocioUpdate) -> Socio:

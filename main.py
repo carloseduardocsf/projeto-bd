@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from bd.models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate
+from bd.models import Socio, Equipe, Plano, Contrato, Beneficio, Associacao, SocioUpdate, EquipeUpdate, PlanoUpdate, ContratoUpdate, RelatorioReceita, RelatorioGastosSocios, RelatorioSociosAtivos
 from typing import List
 from bd.db import DataBase
 
@@ -259,3 +259,15 @@ async def delete_associacao(cpf_socio: str, id_equipe: int, id_contrato: int) ->
     db.delete_associacao(associacao=row)
 
     return row
+
+@app.get("/relatorio_receita")
+async def relatorio_receita() -> List[RelatorioReceita]:
+    return db.relatorio_receita()
+
+@app.get("/relatorio_socios_ativos")
+async def relatorio_socios_ativos() -> List[RelatorioSociosAtivos]:
+    return db.relatorio_socios_ativos()
+
+@app.get("/relatorio_gastos_socios")
+async def relatorio_gastos_socios() -> List[RelatorioGastosSocios]:
+    return db.relatorio_gastos_socios()

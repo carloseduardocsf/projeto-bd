@@ -14,7 +14,7 @@ VALUES
     ('844.163.368-10', 'Vanessa Ayla Emilly Nascimento', 'vanessa-nascimento79@ceuazul.ind.br', '+55 (83) 99745-2011', '1990-01-14', '2022-05-16'),
     ('950.284.076-30', 'Vitória Fátima Giovana Peixoto', 'vitoria_fatima_peixoto@yahoo.de', '+55 (83) 99644-4832', '1988-01-24', '2022-04-10'),
     ('663.567.940-54', 'Lorenzo Raul Nelson Ramos', 'lorenzoraulramos@igui.com.br', '+55 (84) 98534-2470', '1963-03-13', '2022-03-05'),
-    ('251.366.534-18', 'Cláudio Yuri Daniel Campos', 'claudio-campos70@metroquali.com.br', '+55 (84) 98534-2470', '1999-04-22', '2022-03-10'),
+    ('251.366.534-18', 'Cláudio Yuri Daniel Campos', 'claudio-campos70@metroquali.com.br', '+55 (84) 98334-2330', '1999-04-22', '2022-03-10'),
     ('432.512.914-67', 'Kamilly Hadassa Drumond', 'kamilly-drumond96@johndeere.com', '+55 (83) 99713-2503', '1997-03-18', '2022-04-11'),
     ('018.147.354-29', 'Melissa Jennifer Dias', 'melissa-dias91@eletroaquila.net', '+55 (83) 98758-3528', '1997-03-17', '2022-03-10'),
     ('541.756.874-08', 'Tiago João Moura', 'tiagojoaomoura@silicotex.net', '+55 (83) 98272-5693', '1997-01-19', '2022-03-22');

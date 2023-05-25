@@ -58,3 +58,16 @@ class Associacao(BaseModel):
     cpf_socio: constr(min_length=14, max_length=14)
     id_equipe: int
     id_contrato: int
+
+class RelatorioReceita(BaseModel):
+    time: str
+    receita: float
+    receita_media_mensal: float
+
+class RelatorioSociosAtivos(BaseModel):
+    time: str
+    socios_ativos: int
+
+class RelatorioGastosSocios(BaseModel):
+    nome: str
+    gasto: float

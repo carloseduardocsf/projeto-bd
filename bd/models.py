@@ -33,31 +33,50 @@ class EquipeUpdate(BaseModel):
 class Plano(BaseModel):
     categoria: constr(min_length=1, max_length=1)
     valor: float
+    desconto_ingresso: float
 
 class PlanoUpdate(BaseModel):
+    categoria: constr(min_length=1, max_length=1) | None = None
     valor: float | None = None
+    desconto_ingresso: float | None = None
 
-class Contrato(BaseModel):
+class Estoque(BaseModel):
     id: int | None = None
-    dt_associacao: date | None = None
-    dt_expiracao: date | None = None
-    qtd_meses: int
-    categoria_plano: constr(min_length=1, max_length=1)
+    quantidade: int 
+    id_ingresso: int | None = None
 
-class ContratoUpdate(BaseModel):
-    dt_associacao: date | None = None
-    dt_expiracao: date | None = None
-    qtd_meses: int | None = None
-    categoria_plano: constr(min_length=1, max_length=1) | None = None
+class EstoqueUpdate(BaseModel):
+    quantidade: int | None = None
+    id_ingresso: int | None = None
 
-class Beneficio(BaseModel):
-    categoria_plano: constr(min_length=1, max_length=1)
-    beneficio: constr(max_length=100)
+class Ingresso(BaseModel):
+    id: int | None = None
+    visitante: constr(max_length=30) 
+    preco_inteiro: float 
+    id_mandante: int
+    dt_evento: date 
+
+class IngressoUpdate(BaseModel):
+    visitante: constr(max_length=30) | None = None
+    preco_inteiro: float | None = None
+    id_mandante: int | None = None 
+    dt_evento: date | None = None
 
 class Associacao(BaseModel):
     cpf_socio: constr(min_length=14, max_length=14)
-    id_equipe: int
-    id_contrato: int
+    id_equipe: int 
+    categoria_plano: constr(min_length=1, max_length=1)
+    dt_associacao: date 
+    dt_expiracao: date  
+
+class Venda(BaseModel):
+    id_socio: int
+    id_ingresso: int
+    data: date
+    valor: float
+    forma_pagamento: constr(max_length=20)
+    status_pagamento: constr(max_length=20)
+
 
 class RelatorioReceita(BaseModel):
     time: str
@@ -71,3 +90,23 @@ class RelatorioSociosAtivos(BaseModel):
 class RelatorioGastosSocios(BaseModel):
     nome: str
     gasto: float
+    
+
+    '''
+    class Contrato(BaseModel):
+    id: int | None = None
+    dt_associacao: date | None = None
+    dt_expiracao: date | None = None
+    qtd_meses: int
+    categoria_plano: constr(min_length=1, max_length=1)
+
+class ContratoUpdate(BaseModel):
+    dt_associacao: date | None = None
+    dt_expiracao: date | None = None
+    qtd_meses: int | None = None
+    categoria_plano: constr(min_length=1, max_length=1) | None = None
+    '''
+
+'''class Beneficio(BaseModel):
+    categoria_plano: constr(min_length=1, max_length=1)
+    beneficio: constr(max_length=100)'''

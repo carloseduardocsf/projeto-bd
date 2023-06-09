@@ -1,5 +1,7 @@
 from typing import Optional, Tuple, Union
 import customtkinter as ctk
+from tkinter import ttk
+from bd.models import Socio, Equipe, Plano, Ingresso
 
 # Tela de cadastro
 #     Inserir cpf
@@ -57,7 +59,6 @@ class TelaInicial(ctk.CTk):
 
         self.telas = [TelaCadastro(self), TelaAssociacao(self), TelaIngresso(self), TelaFuncionario(self)]
         for i in range(1, 4):
-            print(f'apagando {i}')
             self.telas[i].grid_forget()
 
         # Frame da direita (principal), que ocupa toda a primeira coluna que tem peso 4, começa no cadastro
@@ -267,42 +268,185 @@ class TelaFuncionario(ctk.CTkFrame):
         self.titulo = ctk.CTkLabel(self, text="Funcionário", font=("Roboto", 50))
         self.titulo.grid(row=0, column=0, columnspan=4, sticky='nswe')
 
-        # Socio
-        # Equipe
-        # Plano
-        # Associação
-        # Ingresso
-        # Estoque
-        # Venda
-
         self.label = ctk.CTkLabel(self, text="Escolher tabela:", font=("Roboto", 30))
         self.label.grid(row=1, column=0, columnspan=4, sticky='nswe')
 
-        self.botao_socio = ctk.CTkButton(self, text='Sócio', font=("Roboto", 20))
+        self.botao_socio = ctk.CTkButton(self, text='Sócio', font=("Roboto", 20), command=self.abrirSocio)
         self.botao_socio.grid(row=2, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_equipe = ctk.CTkButton(self, text='Equipe', font=("Roboto", 20))
+        self.botao_equipe = ctk.CTkButton(self, text='Equipe', font=("Roboto", 20), command=self.abrirEquipe)
         self.botao_equipe.grid(row=3, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_plano = ctk.CTkButton(self, text='Plano', font=("Roboto", 20))
+        self.botao_plano = ctk.CTkButton(self, text='Plano', font=("Roboto", 20), command=self.abriPlano)
         self.botao_plano.grid(row=4, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        # self.botao_associacao = ctk.CTkButton(self, text='Associação', font=("Roboto", 20))
-        # self.botao_associacao.grid(row=5, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
-
-        self.botao_ingresso = ctk.CTkButton(self, text='Ingresso', font=("Roboto", 20))
+        self.botao_ingresso = ctk.CTkButton(self, text='Ingresso', font=("Roboto", 20), command=self.abriIngresso)
         self.botao_ingresso.grid(row=5, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_estoque = ctk.CTkButton(self, text='Estoque', font=("Roboto", 20))
+        self.botao_estoque = ctk.CTkButton(self, text='Estoque', font=("Roboto", 20), command=self.abriEstoque)
         self.botao_estoque.grid(row=6, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        # self.botao_venda = ctk.CTkButton(self, text='Venda', font=("Roboto", 20))
-        # self.botao_venda.grid(row=8, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
-
         self.botao_relatorios = ctk.CTkButton(self, text='Relatórios', font=("Roboto", 20))
-        self.botao_relatorios.grid(row=6, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
+        self.botao_relatorios.grid(row=7, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
+
+    def abrirSocio(self):
+        tabela = TelaTabela(tabela='Socio')
+        tabela.attributes('-topmost', 'true')
+
+    def abrirEquipe(self):
+        tabela = TelaTabela(tabela='Equipe')
+        tabela.attributes('-topmost', 'true')
+
+    def abriPlano(self):
+        tabela = TelaTabela(tabela='Plano')
+        tabela.attributes('-topmost', 'true')
+
+    def abriIngresso(self):
+        tabela = TelaTabela(tabela='Ingresso')
+        tabela.attributes('-topmost', 'true')
+
+    def abriEstoque(self):
+        tabela = TelaTabela(tabela='Estoque')
+        tabela.attributes('-topmost', 'true')
+
+
+class TelaTabela(ctk.CTkToplevel):
+    def __init__(self, tabela='Socio'):
+        super().__init__()
+
+        self.tabela = tabela
+
+        self.title(f'Editar {tabela}')
+        self.geometry('1280x720')
+
+        self.columnconfigure(index=(0, 1, 2), weight=1)
+        self.rowconfigure(index=(1), weight=1)
+
+        self.frame_campos = ctk.CTkFrame(self)
+        self.frame_campos.grid(row=0, column=0, columnspan=3, pady=10, padx=10, sticky='nswe')
+
+        self.view = ttk.Treeview(self)
+        self.view.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nswe')
+
+        self.botao_adicionar = ctk.CTkButton(self, text='Adicionar', font=("Roboto", 20))
+        self.botao_adicionar.grid(row=2, column=0, padx=10, pady=10, sticky='we')
+
+        self.botao_editar = ctk.CTkButton(self, text='Editar', font=("Roboto", 20))
+        self.botao_editar.grid(row=2, column=1, padx=10, pady=10, sticky='we')
+
+        self.botao_remover = ctk.CTkButton(self, text='Remover', font=("Roboto", 20))
+        self.botao_remover.grid(row=2, column=2, padx=10, pady=10, sticky='we')
+
+        if tabela == 'Socio':
+            self.frame_campos.columnconfigure(index=(0, 1, 2), weight=1)
+
+            self.label_cpf = ctk.CTkLabel(self.frame_campos, text='CPF', font=("Roboto", 20))
+            self.label_cpf.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_cpf = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_cpf.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_nome = ctk.CTkLabel(self.frame_campos, text='Nome', font=("Roboto", 20))
+            self.label_nome.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_nome = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_nome.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_email = ctk.CTkLabel(self.frame_campos, text='Email', font=("Roboto", 20))
+            self.label_email.grid(row=0, column=2, padx=5, pady=(10, 0), sticky='')
+            self.input_email = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_email.grid(row=1, column=2, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_telefone = ctk.CTkLabel(self.frame_campos, text='Telefone', font=("Roboto", 20))
+            self.label_telefone.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_telefone = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_telefone.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_dt_nasimento = ctk.CTkLabel(self.frame_campos, text='Data de nascimento', font=("Roboto", 20))
+            self.label_dt_nasimento.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_dt_nasimento = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_dt_nasimento.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_dt_cadastro = ctk.CTkLabel(self.frame_campos, text='Data de cadastro', font=("Roboto", 20))
+            self.label_dt_cadastro.grid(row=2, column=2, padx=5, pady=(10, 0), sticky='')
+            self.input_dt_cadastro = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_dt_cadastro.grid(row=3, column=2, padx=5, pady=10, columnspan=1, sticky='we')
+
+        elif tabela == 'Equipe':
+            self.frame_campos.columnconfigure(index=(0, 1), weight=1)
+
+            self.label_cnpj = ctk.CTkLabel(self.frame_campos, text='CNPJ', font=("Roboto", 20))
+            self.label_cnpj.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_cnpj = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_cnpj.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_nome = ctk.CTkLabel(self.frame_campos, text='Nome', font=("Roboto", 20))
+            self.label_nome.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_nome = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_nome.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_endereço = ctk.CTkLabel(self.frame_campos, text='Endereço', font=("Roboto", 20))
+            self.label_endereço.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_endereço = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_endereço.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_email = ctk.CTkLabel(self.frame_campos, text='Email', font=("Roboto", 20))
+            self.label_email.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_email = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_email.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+        elif tabela == 'Plano':
+            self.frame_campos.columnconfigure(index=(0, 1), weight=1)
+
+            self.label_valor = ctk.CTkLabel(self.frame_campos, text='Valor', font=("Roboto", 20))
+            self.label_valor.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_valor = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_valor.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_desconto = ctk.CTkLabel(self.frame_campos, text='Desconto', font=("Roboto", 20))
+            self.label_desconto.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_desconto = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_desconto.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+        elif tabela == 'Ingresso':
+            self.frame_campos.columnconfigure(index=(0, 1), weight=1)
+
+            self.label_id_mandante = ctk.CTkLabel(self.frame_campos, text='ID Mandante', font=("Roboto", 20))
+            self.label_id_mandante.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_id_mandante = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_id_mandante.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_visitante = ctk.CTkLabel(self.frame_campos, text='Visitante', font=("Roboto", 20))
+            self.label_visitante.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_visitante = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_visitante.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_preco = ctk.CTkLabel(self.frame_campos, text='Preço', font=("Roboto", 20))
+            self.label_preco.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_preco = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_preco.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_dt_evento = ctk.CTkLabel(self.frame_campos, text='Data do evento', font=("Roboto", 20))
+            self.label_dt_evento.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_dt_evento = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_dt_evento.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+        elif tabela == 'Estoque':
+            self.frame_campos.columnconfigure(index=(0, 1), weight=1)
+
+            self.label_id_ingresso = ctk.CTkLabel(self.frame_campos, text='ID Ingresso', font=("Roboto", 20))
+            self.label_id_ingresso.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_id_ingresso = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_id_ingresso.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+            self.label_quantidade = ctk.CTkLabel(self.frame_campos, text='Quantidade', font=("Roboto", 20))
+            self.label_quantidade.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.input_quantidade = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_quantidade.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+    
+    def recarregar_tabela(self):
+        pass
+
 
 
 app = TelaInicial()

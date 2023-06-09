@@ -1,6 +1,7 @@
 from typing import Optional, Tuple, Union
 import customtkinter as ctk
 from tkinter import ttk
+from tkinter import messagebox
 from bd.models import Socio, Equipe, Plano, Ingresso
 
 # Tela de cadastro
@@ -161,10 +162,16 @@ class TelaCadastro(ctk.CTkFrame):
         self.input_inserir_cpf = ctk.CTkEntry(self, font=("Roboto", 20))
         self.input_inserir_cpf.grid(row=1, column=1, padx=10, pady=10, sticky='swe')
 
-        self.botao_confirmar = ctk.CTkButton(self, text='Confirmar', font=("Roboto", 20))
+        self.botao_confirmar = ctk.CTkButton(self, text='Confirmar', font=("Roboto", 20), command=self.confirmar)
         self.botao_confirmar.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky='n')
 
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
+    
+    def confirmar(self):
+        if len(self.input_inserir_cpf.get()) == 14:
+            top = TelaNovoCadastro()
+        else:
+            messagebox.showerror('Erro!', 'Deu errado!')
 
 
 class TelaAssociacao(ctk.CTkFrame):
@@ -293,23 +300,18 @@ class TelaFuncionario(ctk.CTkFrame):
 
     def abrirSocio(self):
         tabela = TelaTabela(tabela='Socio')
-        tabela.attributes('-topmost', 'true')
 
     def abrirEquipe(self):
         tabela = TelaTabela(tabela='Equipe')
-        tabela.attributes('-topmost', 'true')
 
     def abriPlano(self):
         tabela = TelaTabela(tabela='Plano')
-        tabela.attributes('-topmost', 'true')
 
     def abriIngresso(self):
         tabela = TelaTabela(tabela='Ingresso')
-        tabela.attributes('-topmost', 'true')
 
     def abriEstoque(self):
         tabela = TelaTabela(tabela='Estoque')
-        tabela.attributes('-topmost', 'true')
 
 
 class TelaTabela(ctk.CTkToplevel):
@@ -317,6 +319,7 @@ class TelaTabela(ctk.CTkToplevel):
         super().__init__()
 
         self.tabela = tabela
+        self.attributes('-topmost', 'true')
 
         self.title(f'Editar {tabela}')
         self.geometry('1280x720')
@@ -447,6 +450,59 @@ class TelaTabela(ctk.CTkToplevel):
     def recarregar_tabela(self):
         pass
 
+
+class TelaNovoCadastro(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
+
+        self.title(f'Novo cadastro')
+        self.geometry('500x800')
+        self.attributes('-topmost', 'true')
+
+        self.rowconfigure(index=0, weight=1)
+        self.columnconfigure(index=0, weight=1)
+
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.grid(row=0, column=0, padx=10, pady=10, sticky='news')
+
+        self.main_frame.columnconfigure(index=(0, 3), weight=1)
+        self.main_frame.rowconfigure(index=(0, 7), weight=1)
+
+        self.titulo = ctk.CTkLabel(self.main_frame, text='Novo cadastro', font=("Roboto", 50))
+        self.titulo.grid(row=0, column=0, columnspan=4, sticky='news')
+
+        self.label_cpf = ctk.CTkLabel(self.main_frame, text='CPF', font=("Roboto", 20))
+        self.label_cpf.grid(row=1, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_cpf = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_cpf.grid(row=1, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.label_nome = ctk.CTkLabel(self.main_frame, text='Nome', font=("Roboto", 20))
+        self.label_nome.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_nome = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_nome.grid(row=2, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.label_email = ctk.CTkLabel(self.main_frame, text='Email', font=("Roboto", 20))
+        self.label_email.grid(row=3, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_email = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_email.grid(row=3, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.label_telefone = ctk.CTkLabel(self.main_frame, text='Telefone', font=("Roboto", 20))
+        self.label_telefone.grid(row=4, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_telefone = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_telefone.grid(row=4, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.label_dt_nasimento = ctk.CTkLabel(self.main_frame, text='Data de nascimento', font=("Roboto", 20))
+        self.label_dt_nasimento.grid(row=5, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_dt_nasimento = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_dt_nasimento.grid(row=5, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.label_dt_cadastro = ctk.CTkLabel(self.main_frame, text='Data de cadastro', font=("Roboto", 20))
+        self.label_dt_cadastro.grid(row=6, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.input_dt_cadastro = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.input_dt_cadastro.grid(row=6, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+
+        self.botao_cadastrar = ctk.CTkButton(self.main_frame, text='Cadastrar', font=("Roboto", 20))
+        self.botao_cadastrar.grid(row=7, column=1, padx=10, pady=10, columnspan=2, sticky='we')
 
 
 app = TelaInicial()

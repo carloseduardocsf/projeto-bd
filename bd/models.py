@@ -70,7 +70,7 @@ class Associacao(BaseModel):
     dt_expiracao: date  
 
 class Venda(BaseModel):
-    id_socio: int
+    cpf_socio: constr(min_length=14, max_length=14)
     id_ingresso: int
     data: date
     valor: float

@@ -10,6 +10,8 @@ from bd.models import Socio, Equipe, Plano, Ingresso
 #         Se existir Tela com o(s) time(s) associado(s) e ingressos comprados
 
 # Se associar
+#     Checa se o CPF existe, se não existir na base, retorna erro
+#     Checa se ja existe uma associação ativa daquele CPF com aquele time, se tiver retorna erro explicando
 #     Lista da times para escolher
 #     Lista dos planos
 

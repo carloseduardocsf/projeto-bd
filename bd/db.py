@@ -16,7 +16,7 @@ class DataBase:
         return conn
     
     def create_socio(self, socio: Socio):
-        sql = '''INSERT INTO Socios (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
+        sql = '''INSERT INTO Socio (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
                 VALUES(?,?,?,?,?,?) '''
         
         params = (socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro)
@@ -28,29 +28,27 @@ class DataBase:
             conn.commit()
 
     def update_socio(self, socio: Socio):
-        sql = ''' UPDATE Socios SET nome=?, email=?, telefone=?, dt_nascimento=?, dt_cadastro=? WHERE cpf=? '''
+        sql = ''' UPDATE Socio SET nome=?, email=?, telefone=?, dt_nascimento=?, dt_cadastro=? WHERE cpf=? '''
 
         params = (socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro, socio.cpf)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def delete_socio(self, socio: Socio):
-        sql = 'DELETE FROM Socios WHERE cpf=?'
+        sql = 'DELETE FROM Socio WHERE cpf=?'
 
         params = (socio.cpf,)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def create_equipe(self, equipe: Equipe):
-        sql = '''INSERT INTO Equipes (cnpj, nome, endereco, email)
+        sql = '''INSERT INTO Equipe (cnpj, nome, endereco, email)
                 VALUES(?,?,?,?) '''
         
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email)
@@ -61,29 +59,27 @@ class DataBase:
             conn.commit()
 
     def update_equipe(self, equipe: Equipe):
-        sql = ''' UPDATE Equipes SET cnpj=?, nome=?, endereco=?, email=? WHERE id=? '''
+        sql = ''' UPDATE Equipe SET cnpj=?, nome=?, endereco=?, email=? WHERE id=? '''
 
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email, equipe.id)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def delete_equipe(self, equipe: Equipe):
-        sql = 'DELETE FROM Equipes WHERE id=?'
+        sql = 'DELETE FROM Equipe WHERE id=?'
 
         params = (equipe.id,)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def create_plano(self, plano: Plano):
-        sql = '''INSERT INTO Planos (categoria, valor, desconto_ingresso)
+        sql = '''INSERT INTO Plano (categoria, valor, desconto_ingresso)
                 VALUES(?,?,?) '''
         
         params = (plano.categoria, plano.valor, plano.desconto_ingresso)
@@ -94,34 +90,30 @@ class DataBase:
             conn.commit()
 
     def update_plano(self, plano: Plano):
-        sql = ''' UPDATE Planos SET valor=?, desconto_ingresso=? WHERE categoria=? '''
+        sql = ''' UPDATE Plano SET valor=?, desconto_ingresso=? WHERE categoria=? '''
 
-        params = (plano.valor, plano.categoria, plano.desconto_ingresso)
+        params = (plano.valor, plano.desconto_ingresso, plano.categoria)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def delete_plano(self, plano: Plano):
-        sql = 'DELETE FROM Planos WHERE categoria=?'
+        sql = 'DELETE FROM Plano WHERE categoria=?'
 
         params = (plano.categoria,)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
-    
-    
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
     
     def create_associacao(self, associacao: Associacao):
-        sql = '''INSERT INTO Associacoes (id_equipe, cpf_socio, dt_associacao, dt_expiracao)
-                VALUES(?,?,?,?) '''
+        sql = '''INSERT INTO Associacao (cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao)
+                VALUES(?,?,?,?,?) '''
         
-        params = (associacao.id_equipe, associacao.cpf_socio, associacao.dt_associacao, associacao.dt_expiracao)
+        params = (associacao.cpf_socio, associacao.id_equipe, associacao.categoria_plano, associacao.dt_associacao, associacao.dt_expiracao)
 
         with self._create_connection() as conn:
             cur = conn.cursor()
@@ -129,19 +121,17 @@ class DataBase:
             conn.commit()
 
     def delete_associacao(self, associacao: Associacao):
-        sql = 'DELETE FROM Associacoes WHERE cpf_socio=? AND id_equipe=? AND id_contrato=?'
+        sql = 'DELETE FROM Associacao WHERE cpf_socio=? AND id_equipe=? AND categoria_plano=?'
 
-        params = (associacao.cpf_socio, associacao.id_equipe, associacao.id_contrato)
+        params = (associacao.cpf_socio, associacao.id_equipe, associacao.categoria_plano)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def get_socios(self):
-        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
-                Socios'''
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio'''
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -156,7 +146,7 @@ class DataBase:
         return socios
 
     def get_socio_by_id(self, cpf):
-        sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socios WHERE cpf=? '''
+        sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE cpf=? '''
 
         params = (cpf,)
 
@@ -169,8 +159,7 @@ class DataBase:
         return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) if res else None
     
     def get_socio_by_name(self, nome):
-        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM
-                Socios WHERE nome LIKE ?'''
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE nome LIKE ?'''
         
         params = ('%' + nome + '%',)
 
@@ -188,7 +177,7 @@ class DataBase:
 
     def get_equipes(self):
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
-                Equipes'''
+                Equipe'''
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -203,7 +192,7 @@ class DataBase:
         return equipes
 
     def get_equipe_by_id(self, id):
-        sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipes WHERE id=? '''
+        sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipe WHERE id=? '''
 
         params = (id,)
 
@@ -217,7 +206,7 @@ class DataBase:
     
     def get_equipe_by_name(self, nome):
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
-                Equipes WHERE nome LIKE ?'''
+                Equipe WHERE nome LIKE ?'''
         
         params = ('%' + nome + '%',)
 
@@ -235,7 +224,7 @@ class DataBase:
 
     def get_planos(self):
         sql = '''SELECT categoria, valor, desconto_ingresso FROM
-                Planos'''
+                Plano'''
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -250,7 +239,7 @@ class DataBase:
         return planos
 
     def get_plano_by_id(self, categoria):
-        sql = ''' SELECT categoria, valor, desconto_ingresso FROM Planos WHERE categoria=? '''
+        sql = ''' SELECT categoria, valor, desconto_ingresso FROM Plano WHERE categoria=? '''
 
         params = (categoria,)
 
@@ -262,11 +251,8 @@ class DataBase:
 
         return Plano(categoria=res[0], valor=res[1], desconto_ingresso=res[2]) if res else None
 
-    
-
     def get_associacoes(self):
-        sql = '''SELECT cpf_socio, id_equipe, dt_associacao, dt_expiracao FROM
-                Associacoes'''
+        sql = '''SELECT cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao FROM Associacao'''
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -276,15 +262,14 @@ class DataBase:
 
         associacoes = list()
         for r in res:
-            associacoes.append(Associacao(cpf_socio=r[0], id_equipe=r[1], dt_associacao=r[2], dt_expiracao=r[3]))
+            associacoes.append(Associacao(cpf_socio=r[0], id_equipe=r[1], categoria_plano=r[2], dt_associacao=r[3], dt_expiracao=r[4]))
         
         return associacoes
     
-    def get_associacoes_by_id(self, cpf_socio, id_equipe):
-        sql = '''SELECT cpf_socio, id_equipe FROM
-                Associacoes where cpf_socio = ? AND id_equipe = ?'''
+    def get_associacoes_by_id(self, cpf_socio, id_equipe, categoria_plano):
+        sql = '''SELECT cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao FROM Associacao where cpf_socio = ? AND id_equipe = ? AND categoria_plano = ?'''
 
-        params = (cpf_socio, id_equipe)
+        params = (cpf_socio, id_equipe, categoria_plano)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -292,15 +277,13 @@ class DataBase:
         res = cur.fetchone()
         conn.close()
         
-        return Associacao(cpf_socio=res[0], id_equipe=res[1]) if res else None
-    
-
+        return Associacao(cpf_socio=res[0], id_equipe=res[1], categoria_plano=res[2], dt_associacao=res[3], dt_expiracao=res[4]) if res else None
 
     def create_ingresso(self, ingresso: Ingresso):
-        sql = '''INSERT INTO Ingresso (id, visitante, dt_evento, preco_inteiro, id_mandante)
-                VALUES(?,?,?,?,?) '''
+        sql = '''INSERT INTO Ingresso (visitante, dt_evento, preco_inteiro, id_mandante)
+                VALUES(?,?,?,?) '''
         
-        params = (ingresso.id, ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante)
+        params = (ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante)
 
         with self._create_connection() as conn:
             cur = conn.cursor()
@@ -312,26 +295,23 @@ class DataBase:
 
         params = (ingresso.id,)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_ingresso(self, ingresso: Ingresso):
         sql = ''' UPDATE Ingresso SET visitante=?, dt_evento=?, preco_inteiro=?, id_mandante=? WHERE id=? '''
 
-        params = (ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante)
+        params = (ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante, ingresso.id)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def get_ingresso(self):
-        sql = '''SELECT id, visitante, dt_evento, preco_inteiro, id_mandante FROM
-                Ingresso'''
+        sql = '''SELECT id, visitante, dt_evento, preco_inteiro, id_mandante FROM Ingresso'''
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -345,13 +325,11 @@ class DataBase:
         
         return ingressos
 
-
-
     def create_estoque(self, estoque: Estoque):
-        sql = '''INSERT INTO Estoque (id, quantidade, id_ingresso)
-                VALUES(?,?,?) '''
+        sql = '''INSERT INTO Estoque (quantidade, id_ingresso)
+                VALUES(?,?) '''
         
-        params = (estoque.id, estoque.quantidade, estoque.id_ingresso)
+        params = (estoque.quantidade, estoque.id_ingresso)
 
         with self._create_connection() as conn:
             cur = conn.cursor()
@@ -363,22 +341,20 @@ class DataBase:
 
         params = (estoque.id,)
 
-        conn = self._create_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def update_estoque(self, estoque: Estoque):
         sql = ''' UPDATE Estoque SET quantidade=? WHERE id=? '''
 
         params = (estoque.quantidade, estoque.id)
 
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql, params)
-        conn.commit()
-        conn.close()
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(sql, params)
+            conn.commit()
 
     def get_estoque(self):
         sql = '''SELECT id, quantidade, id_ingresso FROM
@@ -404,7 +380,7 @@ class DataBase:
             FROM Equipes AS e
             LEFT JOIN Associacoes AS a
             ON a.id_equipe = e.id
-            LEFT JOIN Socios AS s
+            LEFT JOIN Socio AS s
             ON a.cpf_socio = s.cpf
             LEFT JOIN Contratos AS c
             ON a.id_contrato = c.id
@@ -432,7 +408,7 @@ class DataBase:
             FROM Equipes AS e
             LEFT JOIN Associacoes AS a
             ON a.id_equipe = e.id
-            LEFT JOIN Socios AS s
+            LEFT JOIN Socio AS s
             ON a.cpf_socio = s.cpf
             LEFT JOIN Contratos AS c
             ON a.id_contrato = c.id
@@ -512,68 +488,4 @@ class DataBase:
             relatorio.append(RelatorioGastosSocios(nome=r[0], gasto=r[1]))
         
         return relatorio
-    
-
-
-
-    # def create_contrato(self, contrato: Contrato):
-    #     sql = '''INSERT INTO Contratos (dt_associacao, dt_expiracao, qtd_meses, categoria_plano)
-    #             VALUES(?,?,?,?) '''
-        
-    #     params = (contrato.dt_associacao, contrato.dt_expiracao, contrato.qtd_meses, contrato.categoria_plano)
-
-    #     with self._create_connection() as conn:
-    #         cur = conn.cursor()
-    #         cur.execute(sql, params)
-    #         conn.commit()
-
-    # def update_contrato(self, contrato: Contrato):
-    #     sql = ''' UPDATE Contratos SET dt_associacao=?, dt_expiracao=?, qtd_meses=?, categoria_plano=? WHERE id=? '''
-
-    #     params = (contrato.dt_associacao, contrato.dt_expiracao, contrato.qtd_meses, contrato.categoria_plano, contrato.id)
-
-    #     conn = self._create_connection()
-    #     cur = conn.cursor()
-    #     cur.execute(sql, params)
-    #     conn.commit()
-    #     conn.close()
-
-    # def delete_contrato(self, contrato: Contrato):
-    #     sql = 'DELETE FROM Contratos WHERE id=?'
-
-    #     params = (contrato.id,)
-
-    #     conn = self._create_connection()
-    #     cursor = conn.cursor()
-    #     cursor.execute(sql, params)
-    #     conn.commit()
-    #     conn.close()
-
-
-    # def create_beneficio(self, beneficio: Beneficio):
-    #     sql = '''INSERT INTO Beneficios (categoria_plano, beneficio)
-    #             VALUES(?,?) '''
-        
-    #     params = (beneficio.categoria_plano, beneficio.beneficio)
-
-    #     with self._create_connection() as conn:
-    #         cur = conn.cursor()
-    #         cur.execute(sql, params)
-    #         conn.commit()
-
-    # def delete_beneficio(self, beneficio: Beneficio):
-    #     sql = 'DELETE FROM Beneficios WHERE categoria_plano=? AND beneficio=?'
-
-    #     params = (beneficio.categoria_plano, beneficio.beneficio)
-
-    #     conn = self._create_connection()
-    #     cursor = conn.cursor()
-    #     cursor.execute(sql, params)
-    #     conn.commit()
-    #     conn.close()
-
-
-
-
-
     

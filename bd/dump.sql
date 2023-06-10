@@ -30,7 +30,7 @@ VALUES
     ('Mercenários E.C.', 20.00, 1, '2023-06-15'),
     ('Time do Sul F.C.', 30.00, 2, '2023-06-19'),
     ('Newark F.C.', 50.00, 3, '2023-06-23'),
-    ('Volante E.C.', 20.00, 4, '2023-06-27'),
+    ('Volante E.C.', 20.00, 4, '2023-06-27');
 
 INSERT INTO Estoque (quantidade, id_ingresso)
 VALUES

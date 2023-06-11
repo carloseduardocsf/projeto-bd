@@ -3,6 +3,7 @@ from bd.models import (Socio, Equipe, Plano, Associacao,
                        RelatorioSociosAtivos, RelatorioGastosSocios,
                        PedidosRealizados)
 import sqlite3
+from typing import List
 
 
 class DataBase:
@@ -225,7 +226,7 @@ class DataBase:
         
         return equipes
 
-    def get_planos(self):
+    def get_planos(self) -> List[Plano]:
         sql = '''SELECT categoria, valor, desconto_ingresso FROM
                 Plano'''
 
@@ -401,6 +402,53 @@ class DataBase:
             pedidos.append(PedidosRealizados(partida=r[0], dt_compra=r[1], valor=r[2], forma_pagamento=r[3], status_pagamento=r[4]))
         
         return pedidos
+
+    def get_equipe_names(self):
+        sql = '''SELECT nome FROM Equipe'''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        return [r[0] for r in res]
+
+    def check_associacao_ativa(self, cpf, id_equipe):
+        sql = '''
+        SELECT * FROM Associacao
+        WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
+            AND cpf_socio = ?
+            AND id_equipe = ?
+        '''
+
+        params = (cpf, id_equipe)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return True if res else False
+
+    def get_times_associados_by_cpf(self,  cpf):
+        sql = '''
+        SELECT Equipe.nome FROM Associacao
+        LEFT JOIN Equipe
+        ON Equipe.id = Associacao.id_equipe
+        WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
+            AND cpf_socio = ?
+        '''
+        params = (cpf,)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchall()
+        conn.close()
+
+        return [r[0] for r in res] if res else []
 
     def relatorio_receita(self):
         sql = '''

@@ -24,7 +24,8 @@ CREATE TABLE Plano (
     categoria char(1) NOT NULL,
     valor float NOT NULL,
     desconto_ingresso float NOT NULL,
-    PRIMARY KEY (categoria)
+    PRIMARY KEY (categoria),
+    UNIQUE (categoria)
 );
 
 CREATE TABLE Associacao (

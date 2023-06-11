@@ -1,10 +1,11 @@
-from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados
+from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao
 from typing import Optional, Tuple, Union
 from tkinter import messagebox
 import customtkinter as ctk
 from bd.db import DataBase
 from tkinter import ttk
 import tkinter as tk
+from dateutil.relativedelta import relativedelta
 import datetime
 
 db = DataBase('./bd/data.db')
@@ -208,21 +209,30 @@ class TelaAssociacao(ctk.CTkFrame):
         self.label_equipe = ctk.CTkLabel(self, text='Equipe:', font=("Roboto", 20))
         self.label_equipe.grid(row=2, column=0, padx=10, pady=10, sticky='e')
 
-        self.escolha_equipe = ctk.CTkComboBox(self, font=("Roboto", 20))
+        self.equipes = db.get_equipe_names()
+        self.escolha_equipe = ctk.CTkComboBox(self, font=("Roboto", 20), values=self.equipes)
         self.escolha_equipe.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
 
         # Terceira linha
         self.label_plano = ctk.CTkLabel(self, text='Plano:', font=("Roboto", 20))
         self.label_plano.grid(row=3, column=0, padx=10, pady=10, sticky='e')
 
-        planos = ['A', 'B', 'C']
-        self.escolha_plano = ctk.CTkSegmentedButton(self, font=("Roboto", 20), values=planos)
-        self.escolha_plano.set(planos[0])
+        self.planos_desconto = dict()
+        self.planos_valor = dict()
+        for p in db.get_planos():
+            self.planos_desconto[p.categoria] = p.desconto_ingresso
+            self.planos_valor[p.categoria] = p.valor
+
+        self.categorias = list(self.planos_desconto.keys())
+
+        self.escolha_plano = ctk.CTkSegmentedButton(self, font=("Roboto", 20), values=self.categorias, command=self.click_plano)
+        self.escolha_plano.set(self.categorias[0])
         self.escolha_plano.grid(row=3, column=1, padx=10, pady=10, sticky='ew')
 
-        self.label_desconto = ctk.CTkLabel(self, text=f'Desconto: {"50%"}', font=("Roboto", 20))
+        self.label_desconto = ctk.CTkLabel(self, text='', font=("Roboto", 20))
         self.label_desconto.grid(row=3, column=2, padx=10, pady=10, sticky='ew')
 
+        self.click_plano(self.categorias[0])
 
         # Quarta linha
         self.label_quantidade_meses = ctk.CTkLabel(self, text='Meses:', font=("Roboto", 20))
@@ -234,11 +244,98 @@ class TelaAssociacao(ctk.CTkFrame):
         self.escolha_meses.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
 
         # Quinta linha
-        self.botao_confirmar = ctk.CTkButton(self, text='Confirmar', font=("Roboto", 20))
+        self.botao_confirmar = ctk.CTkButton(self, text='Confirmar', font=("Roboto", 20), command=self.confirmar)
         self.botao_confirmar.grid(row=5, column=2, columnspan=1, padx=10, pady=10, sticky='ew')
 
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
+    
+    def click_plano(self, label):
+        self.label_desconto.configure(text=f'Valor: R${self.planos_valor[label]:.2f} | Desconto no ingresso: {self.planos_desconto[label] * 100}%')
+    
+    def confirmar(self):
+        socio = db.get_socio_by_id(self.input_cpf.get())
+        id_equipe = db.get_equipe_by_name(self.escolha_equipe.get())[0].id
+
+        if socio is None:
+            messagebox.showerror('Erro!', 'É necessário realizar o cadastro primeiro!')
+            return
         
+        if db.check_associacao_ativa(self.input_cpf.get(), id_equipe):
+            messagebox.showerror('Erro!', f'CPF {self.input_cpf.get()} já é sócio do time {self.escolha_equipe.get()}!')
+            return
+
+
+        top = TelaInfoAssociacao(self.input_cpf.get(), self.escolha_equipe.get(), self.escolha_plano.get(), self.planos_valor[self.escolha_plano.get()], self.escolha_meses.get(), id_equipe)
+
+class TelaInfoAssociacao(ctk.CTkToplevel):
+    def __init__(self, cpf, equipe, plano, valor, meses, id_equipe):
+        super().__init__()
+
+        self.cpf = cpf
+        self.equipe = equipe
+        self.plano = plano
+        self.valor = valor
+        self.meses = int(meses)
+        self.id_equipe = id_equipe
+
+        self.geometry('500x800')
+        self.attributes('-topmost', 'true')
+        self.title('Confirmação')
+
+        self.rowconfigure(index=0, weight=1)
+        self.columnconfigure(index=0, weight=1)
+
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.grid(row=0, column=0, padx=10, pady=10, sticky='news')
+        self.main_frame.rowconfigure(index=(0, 6), weight=1)
+        self.main_frame.columnconfigure(index=(0, 2), weight=1)
+
+        self.titulo = ctk.CTkLabel(self.main_frame, text="Confirmar", font=("Roboto", 50))
+        self.titulo.grid(row=0, column=0, columnspan=3, sticky='nswe')
+
+        self.label_cpf = ctk.CTkLabel(self.main_frame, text='CPF:', font=("Roboto", 20))
+        self.label_cpf.grid(row=1, column=0, padx=10, pady=10, sticky='e')
+        self.input_cpf = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=cpf)
+        self.input_cpf.grid(row=1, column=1, padx=10, pady=10, columnspan=2, sticky='ew')
+
+        self.label_equipe = ctk.CTkLabel(self.main_frame, text='Equipe:', font=("Roboto", 20))
+        self.label_equipe.grid(row=2, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_equipe = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=equipe)
+        self.escolha_equipe.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        self.label_plano = ctk.CTkLabel(self.main_frame, text='Plano:', font=("Roboto", 20))
+        self.label_plano.grid(row=3, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_plano = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=plano)
+        self.escolha_plano.grid(row=3, column=1, padx=10, pady=10, columnspan=2, sticky='ew')
+
+        self.label_plano = ctk.CTkLabel(self.main_frame, text='Meses:', font=("Roboto", 20))
+        self.label_plano.grid(row=4, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_plano = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=meses)
+        self.escolha_plano.grid(row=4, column=1, padx=10, pady=10, columnspan=2, sticky='ew')
+
+        self.label_valor_esq = ctk.CTkLabel(self.main_frame, text='Valor total:', font=("Roboto", 20))
+        self.label_valor_esq.grid(row=5, column=0, padx=10, pady=10, sticky='e')
+        self.label_valor_dir = ctk.CTkLabel(self.main_frame, text=f'R${(valor * self.meses):.2f}', font=("Roboto", 20))
+        self.label_valor_dir.grid(row=5, column=1, padx=10, pady=10, columnspan=2, sticky='ew')
+
+        self.botao_cancelar = ctk.CTkButton(self.main_frame, text='Cancelar', font=("Roboto", 20), command=self.destroy)
+        self.botao_cancelar.grid(row=6, column=0, padx=10, pady=10, sticky='e')
+        self.botao_confirmar = ctk.CTkButton(self.main_frame, font=("Roboto", 20), text='Confirmar', command=self.associar)
+        self.botao_confirmar.grid(row=6, column=1, padx=10, pady=10, sticky='ew')
+
+    def associar(self):
+        try:
+            associacao = Associacao(cpf_socio=self.cpf, id_equipe=self.id_equipe, categoria_plano=self.plano, dt_associacao=datetime.date.today(), dt_expiracao=datetime.date.today() + relativedelta(months=self.meses))
+
+            db.create_associacao(associacao=associacao)
+
+            messagebox.showinfo('Sucesso!', 'Associação feita com sucesso!')
+
+            self.destroy()
+    
+        except:
+            messagebox.showerror('Erro!', 'Não foi possível realizar a associação, tente novamente!')
+
 
 class TelaIngresso(ctk.CTkFrame):
     def __init__(self, master):
@@ -353,35 +450,41 @@ class TelaInfoCadastro(ctk.CTkToplevel):
 
         self.frame_campos.columnconfigure(index=(0, 1, 2), weight=1)
 
-        self.label_cpf = ctk.CTkLabel(self.frame_campos, text='CPF', font=("Roboto", 20))
+        self.label_cpf = ctk.CTkLabel(self.frame_campos, text='CPF:', font=("Roboto", 20))
         self.label_cpf.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
         self.input_cpf = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.cpf)
         self.input_cpf.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
 
-        self.label_nome = ctk.CTkLabel(self.frame_campos, text='Nome', font=("Roboto", 20))
+        self.label_nome = ctk.CTkLabel(self.frame_campos, text='Nome:', font=("Roboto", 20))
         self.label_nome.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
         self.input_nome = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.nome)
         self.input_nome.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-        self.label_email = ctk.CTkLabel(self.frame_campos, text='Email', font=("Roboto", 20))
+        self.label_email = ctk.CTkLabel(self.frame_campos, text='Email:', font=("Roboto", 20))
         self.label_email.grid(row=0, column=2, padx=5, pady=(10, 0), sticky='')
         self.input_email = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.email)
         self.input_email.grid(row=1, column=2, padx=5, pady=10, columnspan=1, sticky='we')
 
-        self.label_telefone = ctk.CTkLabel(self.frame_campos, text='Telefone', font=("Roboto", 20))
+        self.label_telefone = ctk.CTkLabel(self.frame_campos, text='Telefone:', font=("Roboto", 20))
         self.label_telefone.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
         self.input_telefone = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.telefone)
         self.input_telefone.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
 
-        self.label_dt_nasimento = ctk.CTkLabel(self.frame_campos, text='Data de nascimento', font=("Roboto", 20))
+        self.label_dt_nasimento = ctk.CTkLabel(self.frame_campos, text='Data de nascimento:', font=("Roboto", 20))
         self.label_dt_nasimento.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
         self.input_dt_nasimento = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.dt_nascimento.strftime("%d/%m/%Y"))
         self.input_dt_nasimento.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-        self.label_dt_cadastro = ctk.CTkLabel(self.frame_campos, text='Data de cadastro', font=("Roboto", 20))
+        self.label_dt_cadastro = ctk.CTkLabel(self.frame_campos, text='Data de cadastro:', font=("Roboto", 20))
         self.label_dt_cadastro.grid(row=2, column=2, padx=5, pady=(10, 0), sticky='')
         self.input_dt_cadastro = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.dt_cadastro.strftime("%d/%m/%Y"))
         self.input_dt_cadastro.grid(row=3, column=2, padx=5, pady=10, columnspan=1, sticky='we')
+
+        times = db.get_times_associados_by_cpf(socio.cpf)
+        self.label_times_associados = ctk.CTkLabel(self.frame_campos, text='Time(s):', font=("Roboto", 20))
+        self.label_times_associados.grid(row=4, column=0, columnspan=3, sticky='we', padx=5, pady=10)
+        self.times_associados = ctk.CTkLabel(self.frame_campos, text=', '.join(times), font=("Roboto", 20))
+        self.times_associados.grid(row=5, column=0, columnspan=3, sticky='we', padx=5, pady=10)
 
         # Populando tabela
         pedidos = db.get_pedidos_realizdos(socio.cpf)

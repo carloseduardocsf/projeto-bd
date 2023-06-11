@@ -1,4 +1,7 @@
-from bd.models import Socio, Equipe, Plano, Associacao, Ingresso, Venda, Estoque, RelatorioReceita, RelatorioSociosAtivos, RelatorioGastosSocios
+from bd.models import (Socio, Equipe, Plano, Associacao, 
+                       Ingresso, Venda, Estoque, RelatorioReceita, 
+                       RelatorioSociosAtivos, RelatorioGastosSocios,
+                       PedidosRealizados)
 import sqlite3
 
 
@@ -371,6 +374,33 @@ class DataBase:
             estoques.append(Ingresso(id=r[0], quantidade=r[1], id_ingresso=r[2]))
         
         return estoques
+
+    def get_pedidos_realizdos(self, cpf):
+        sql = '''
+            SELECT (e.nome || ' x ' || i.visitante || ' - ' || strftime('%d/%m/%Y', i.dt_evento)) as partida,
+                    v.dt as dt_compra, v.valor, v.forma_pagamento, v.status_pagamento FROM Venda AS v
+            LEFT JOIN Socio as s
+            ON v.cpf_socio = s.cpf
+            LEFT JOIN Ingresso as i
+            ON i.id = v.id_ingresso
+            LEFT JOIN Equipe as e
+            ON e.id = i.id_mandante
+            WHERE s.cpf = ?
+        '''
+
+        params = (cpf,)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchall()
+        conn.close()
+
+        pedidos = list()
+        for r in res:
+            pedidos.append(PedidosRealizados(partida=r[0], dt_compra=r[1], valor=r[2], forma_pagamento=r[3], status_pagamento=r[4]))
+        
+        return pedidos
 
     def relatorio_receita(self):
         sql = '''

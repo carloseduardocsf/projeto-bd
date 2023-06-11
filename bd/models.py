@@ -92,21 +92,9 @@ class RelatorioGastosSocios(BaseModel):
     gasto: float
     
 
-    '''
-    class Contrato(BaseModel):
-    id: int | None = None
-    dt_associacao: date | None = None
-    dt_expiracao: date | None = None
-    qtd_meses: int
-    categoria_plano: constr(min_length=1, max_length=1)
-
-class ContratoUpdate(BaseModel):
-    dt_associacao: date | None = None
-    dt_expiracao: date | None = None
-    qtd_meses: int | None = None
-    categoria_plano: constr(min_length=1, max_length=1) | None = None
-    '''
-
-'''class Beneficio(BaseModel):
-    categoria_plano: constr(min_length=1, max_length=1)
-    beneficio: constr(max_length=100)'''
+class PedidosRealizados(BaseModel):
+    partida: str
+    dt_compra: date
+    valor: float
+    forma_pagamento: str
+    status_pagamento: str

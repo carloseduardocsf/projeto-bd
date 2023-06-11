@@ -1,8 +1,13 @@
+from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados
 from typing import Optional, Tuple, Union
-import customtkinter as ctk
-from tkinter import ttk
 from tkinter import messagebox
-from bd.models import Socio, Equipe, Plano, Ingresso
+import customtkinter as ctk
+from bd.db import DataBase
+from tkinter import ttk
+import tkinter as tk
+import datetime
+
+db = DataBase('./bd/data.db')
 
 # Tela de cadastro
 #     Inserir cpf
@@ -170,10 +175,16 @@ class TelaCadastro(ctk.CTkFrame):
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
     
     def confirmar(self):
-        if len(self.input_inserir_cpf.get()) == 14:
-            top = TelaNovoCadastro()
+        socio = db.get_socio_by_id(self.input_inserir_cpf.get())
+
+        if len(self.input_inserir_cpf.get()) != 14:
+            messagebox.showerror('Erro!', 'Insira exatamente 14 dígitos!')
+            return
+
+        if socio is None:
+            top = TelaNovoCadastro(self.input_inserir_cpf.get())
         else:
-            messagebox.showerror('Erro!', 'Deu errado!')
+            top = TelaInfoCadastro(socio)
 
 
 class TelaAssociacao(ctk.CTkFrame):
@@ -315,6 +326,68 @@ class TelaFuncionario(ctk.CTkFrame):
     def abriEstoque(self):
         tabela = TelaTabela(tabela='Estoque')
 
+class TelaInfoCadastro(ctk.CTkToplevel):
+    def __init__(self, socio: Socio):
+        super().__init__()
+
+        self.socio = socio
+        self.attributes('-topmost', 'true')
+
+        self.title(f'Dados cadastrais')
+        self.geometry('1280x720')
+
+        self.columnconfigure(index=(0, 1, 2), weight=1)
+        self.rowconfigure(index=(1), weight=1)
+
+        self.frame_campos = ctk.CTkFrame(self)
+        self.frame_campos.grid(row=0, column=0, columnspan=3, pady=10, padx=10, sticky='nswe')
+
+        columns = ('partida', 'dt_compra', 'valor', 'forma_pagamento' , 'status_pagamento')
+        self.view = ttk.Treeview(self, columns=columns, show='headings')
+        self.view.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nswe')
+        self.view.heading('partida', text='Partida')
+        self.view.heading('dt_compra', text='Data da compra')
+        self.view.heading('valor', text='Valor pago')
+        self.view.heading('forma_pagamento', text='Forma de pagamento')
+        self.view.heading('status_pagamento', text='Status do pagamento')
+
+        self.frame_campos.columnconfigure(index=(0, 1, 2), weight=1)
+
+        self.label_cpf = ctk.CTkLabel(self.frame_campos, text='CPF', font=("Roboto", 20))
+        self.label_cpf.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+        self.input_cpf = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.cpf)
+        self.input_cpf.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+        self.label_nome = ctk.CTkLabel(self.frame_campos, text='Nome', font=("Roboto", 20))
+        self.label_nome.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+        self.input_nome = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.nome)
+        self.input_nome.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+        self.label_email = ctk.CTkLabel(self.frame_campos, text='Email', font=("Roboto", 20))
+        self.label_email.grid(row=0, column=2, padx=5, pady=(10, 0), sticky='')
+        self.input_email = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.email)
+        self.input_email.grid(row=1, column=2, padx=5, pady=10, columnspan=1, sticky='we')
+
+        self.label_telefone = ctk.CTkLabel(self.frame_campos, text='Telefone', font=("Roboto", 20))
+        self.label_telefone.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
+        self.input_telefone = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.telefone)
+        self.input_telefone.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+
+        self.label_dt_nasimento = ctk.CTkLabel(self.frame_campos, text='Data de nascimento', font=("Roboto", 20))
+        self.label_dt_nasimento.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
+        self.input_dt_nasimento = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.dt_nascimento.strftime("%d/%m/%Y"))
+        self.input_dt_nasimento.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+
+        self.label_dt_cadastro = ctk.CTkLabel(self.frame_campos, text='Data de cadastro', font=("Roboto", 20))
+        self.label_dt_cadastro.grid(row=2, column=2, padx=5, pady=(10, 0), sticky='')
+        self.input_dt_cadastro = ctk.CTkLabel(self.frame_campos, font=("Roboto", 20), text=self.socio.dt_cadastro.strftime("%d/%m/%Y"))
+        self.input_dt_cadastro.grid(row=3, column=2, padx=5, pady=10, columnspan=1, sticky='we')
+
+        # Populando tabela
+        pedidos = db.get_pedidos_realizdos(socio.cpf)
+        for pedido in pedidos:
+            self.view.insert('', tk.END, values=(pedido.partida, pedido.dt_compra.strftime("%d/%m/%Y"), pedido.valor, pedido.forma_pagamento, pedido.status_pagamento))
+
 
 class TelaTabela(ctk.CTkToplevel):
     def __init__(self, tabela='Socio'):
@@ -454,12 +527,14 @@ class TelaTabela(ctk.CTkToplevel):
 
 
 class TelaNovoCadastro(ctk.CTkToplevel):
-    def __init__(self):
+    def __init__(self, cpf):
         super().__init__()
 
         self.title(f'Novo cadastro')
         self.geometry('500x800')
         self.attributes('-topmost', 'true')
+
+        self.cpf = cpf
 
         self.rowconfigure(index=0, weight=1)
         self.columnconfigure(index=0, weight=1)
@@ -474,38 +549,57 @@ class TelaNovoCadastro(ctk.CTkToplevel):
         self.titulo.grid(row=0, column=0, columnspan=4, sticky='news')
 
         self.label_cpf = ctk.CTkLabel(self.main_frame, text='CPF', font=("Roboto", 20))
-        self.label_cpf.grid(row=1, column=0, padx=5, pady=(10, 0), sticky='e')
-        self.input_cpf = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
+        self.label_cpf.grid(row=1, column=0, padx=5, pady=10, sticky='e')
+        self.input_cpf = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=self.cpf)
         self.input_cpf.grid(row=1, column=1, padx=5, pady=10, columnspan=2, sticky='we')
 
         self.label_nome = ctk.CTkLabel(self.main_frame, text='Nome', font=("Roboto", 20))
-        self.label_nome.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.label_nome.grid(row=2, column=0, padx=5, pady=10, sticky='e')
         self.input_nome = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
         self.input_nome.grid(row=2, column=1, padx=5, pady=10, columnspan=2, sticky='we')
 
         self.label_email = ctk.CTkLabel(self.main_frame, text='Email', font=("Roboto", 20))
-        self.label_email.grid(row=3, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.label_email.grid(row=3, column=0, padx=5, pady=10, sticky='e')
         self.input_email = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
         self.input_email.grid(row=3, column=1, padx=5, pady=10, columnspan=2, sticky='we')
 
         self.label_telefone = ctk.CTkLabel(self.main_frame, text='Telefone', font=("Roboto", 20))
-        self.label_telefone.grid(row=4, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.label_telefone.grid(row=4, column=0, padx=5, pady=10, sticky='e')
         self.input_telefone = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
         self.input_telefone.grid(row=4, column=1, padx=5, pady=10, columnspan=2, sticky='we')
 
         self.label_dt_nasimento = ctk.CTkLabel(self.main_frame, text='Data de nascimento', font=("Roboto", 20))
-        self.label_dt_nasimento.grid(row=5, column=0, padx=5, pady=(10, 0), sticky='e')
+        self.label_dt_nasimento.grid(row=5, column=0, padx=5, pady=10, sticky='e')
         self.input_dt_nasimento = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
         self.input_dt_nasimento.grid(row=5, column=1, padx=5, pady=10, columnspan=2, sticky='we')
 
-        self.label_dt_cadastro = ctk.CTkLabel(self.main_frame, text='Data de cadastro', font=("Roboto", 20))
-        self.label_dt_cadastro.grid(row=6, column=0, padx=5, pady=(10, 0), sticky='e')
-        self.input_dt_cadastro = ctk.CTkEntry(self.main_frame, font=("Roboto", 20))
-        self.input_dt_cadastro.grid(row=6, column=1, padx=5, pady=10, columnspan=2, sticky='we')
+        self.botao_cadastrar = ctk.CTkButton(self.main_frame, text='Cadastrar', font=("Roboto", 20), command=self.cadastrar)
+        self.botao_cadastrar.grid(row=6, column=1, padx=10, pady=10, columnspan=2, sticky='we')
+    
+    def cadastrar(self):
+        if len(self.input_nome.get()) == 0 or len(self.input_email.get()) == 0 or len(self.input_telefone.get()) == 0:
+            messagebox.showerror('Erro!', 'Preencha todos os campos!')
 
-        self.botao_cadastrar = ctk.CTkButton(self.main_frame, text='Cadastrar', font=("Roboto", 20))
-        self.botao_cadastrar.grid(row=7, column=1, padx=10, pady=10, columnspan=2, sticky='we')
+            return
+
+        try:
+            novo_socio = Socio(cpf=self.cpf, 
+                               nome=self.input_nome.get(), 
+                               email=self.input_email.get(), 
+                               telefone=self.input_telefone.get(),
+                               dt_cadastro=datetime.date.today(),
+                               dt_nascimento=datetime.datetime.strptime(self.input_dt_nasimento.get(), "%d/%m/%Y").date()
+                               )
+
+            db.create_socio(novo_socio)
+
+            res = messagebox.showinfo('Sucesso!', 'Cadastro criado com sucesso!')
+            if res == 'ok':
+                self.destroy()
+        except:
+            messagebox.showerror('Erro!', 'Não foi possível realizar o cadastro, tente novamente!')
 
 
 app = TelaInicial()
 app.mainloop()
+

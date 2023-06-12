@@ -1,11 +1,12 @@
-from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao
+from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao, Venda
+from dateutil.relativedelta import relativedelta
 from typing import Optional, Tuple, Union
+from sqlite3 import IntegrityError
 from tkinter import messagebox
 import customtkinter as ctk
 from bd.db import DataBase
 from tkinter import ttk
 import tkinter as tk
-from dateutil.relativedelta import relativedelta
 import datetime
 
 db = DataBase('./bd/data.db')
@@ -358,21 +359,115 @@ class TelaIngresso(ctk.CTkFrame):
         self.label_ingresso = ctk.CTkLabel(self, text='Ingresso:', font=("Roboto", 20))
         self.label_ingresso.grid(row=2, column=0, padx=10, pady=10, sticky='e')
 
-        mandantes = ['Belo F.C.', 'Preá Clube', 'Largatixa E.C.']
-        visitantes = ['Time do Norte', 'A+ F.C', 'Time do Sul']
-        valores = list()
-        for i, m in enumerate(mandantes):
-            for j, v in enumerate(visitantes):
-                valores.append(f'{m} x {v} - {i+10}/{j+1:02}/2023')
-
-        self.escolha_ingresso = ctk.CTkComboBox(self, font=("Roboto", 20), values=valores)
+        self.ingressos_disponiveis = db.get_ingressos_disponiveis()
+        self.escolha_ingresso = ctk.CTkComboBox(self, font=("Roboto", 20), values=self.ingressos_disponiveis)
         self.escolha_ingresso.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
 
         # Terceira linha
-        self.botao_confirmar = ctk.CTkButton(self, text='Continuar', font=("Roboto", 20))
+        self.botao_confirmar = ctk.CTkButton(self, text='Continuar', font=("Roboto", 20), command=self.clique_continuar)
         self.botao_confirmar.grid(row=3, column=2, padx=10, pady=10, sticky='ew')
 
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
+
+    def clique_continuar(self):
+        socio = db.get_socio_by_id(self.input_cpf.get())
+
+        if socio is None:
+            messagebox.showerror('Erro!', 'É necessário realizar o cadastro primeiro!')
+            return
+        
+        mandante = self.escolha_ingresso.get().split(' x ')[0]
+        visitante = self.escolha_ingresso.get().split(' x ')[1].split(' - ')[0]
+        data = datetime.datetime.strptime(self.escolha_ingresso.get().split(' x ')[1].split(' - ')[1], "%d/%m/%Y").date()
+
+        id_ingresso = db.get_id_ingresso_by_mandante_visitante_data(mandante, visitante, data)
+        id_mandante = db.get_equipe_by_name(mandante)[0].id
+        
+        top = TelaInfoIngresso(self.input_cpf.get(), id_ingresso, id_mandante, self.escolha_ingresso.get())
+
+
+class TelaInfoIngresso(ctk.CTkToplevel):
+    def __init__(self, cpf, id_ingresso, id_mandante, ingresso):
+        super().__init__()
+
+        self.cpf = cpf
+        self.id_ingresso = id_ingresso
+        self.id_mandante = id_mandante
+        self.ingresso = ingresso
+
+        self.geometry('800x800')
+        self.attributes('-topmost', 'true')
+        self.title('Confirmação')
+
+        self.rowconfigure(index=0, weight=1)
+        self.columnconfigure(index=0, weight=1)
+
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.grid(row=0, column=0, padx=10, pady=10, sticky='news')
+        self.main_frame.rowconfigure(index=(0, 8), weight=1)
+        self.main_frame.columnconfigure(index=(0, 2), weight=1)
+
+        self.titulo = ctk.CTkLabel(self.main_frame, text="Confirmar", font=("Roboto", 50))
+        self.titulo.grid(row=0, column=0, columnspan=3, sticky='nswe')
+
+        self.label_cpf = ctk.CTkLabel(self.main_frame, text='CPF:', font=("Roboto", 20))
+        self.label_cpf.grid(row=1, column=0, padx=10, pady=10, sticky='e')
+        self.input_cpf = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=cpf)
+        self.input_cpf.grid(row=1, column=1, padx=10, pady=10, columnspan=2, sticky='ew')
+
+        self.label_ingresso = ctk.CTkLabel(self.main_frame, text='Ingresso:', font=("Roboto", 20))
+        self.label_ingresso.grid(row=2, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_ingresso = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=self.ingresso)
+        self.escolha_ingresso.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        # Contas
+        self.desconto = db.get_desconto_from_cpf_equipe(self.cpf, self.id_mandante)
+        self.valor_inteiro = db.get_valor_inteiro_by_ingresso_id(self.id_ingresso)
+        self.valor_a_pagar = self.valor_inteiro * (1 - self.desconto)
+
+        self.label_valor = ctk.CTkLabel(self.main_frame, text='Valor inteiro:', font=("Roboto", 20))
+        self.label_valor.grid(row=3, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_valor = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=f'R${self.valor_inteiro:.2f}')
+        self.escolha_valor.grid(row=3, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        self.label_desconto = ctk.CTkLabel(self.main_frame, text='Desconto do plano:', font=("Roboto", 20))
+        self.label_desconto.grid(row=4, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_desconto = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=f'{self.desconto * 100}%')
+        self.escolha_desconto.grid(row=4, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        self.label_valor_a_pagar = ctk.CTkLabel(self.main_frame, text='Valor a pagar:', font=("Roboto", 20))
+        self.label_valor_a_pagar.grid(row=5, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_valor_a_pagar = ctk.CTkLabel(self.main_frame, font=("Roboto", 20), text=f'R${self.valor_a_pagar:.2f}')
+        self.escolha_valor_a_pagar.grid(row=5, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        self.label_forma_pagamento = ctk.CTkLabel(self.main_frame, text='Forma de pagamento:', font=("Roboto", 20))
+        self.label_forma_pagamento.grid(row=6, column=0, padx=10, pady=10, sticky='e')
+        self.escolha_forma_pagamento = ctk.CTkComboBox(self.main_frame, font=("Roboto", 20), values=['PIX', 'CRÉDITO', 'DÉBITO'])
+        self.escolha_forma_pagamento.grid(row=6, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+        self.botao_cancelar = ctk.CTkButton(self.main_frame, text='Cancelar', font=("Roboto", 20), command=self.destroy)
+        self.botao_cancelar.grid(row=7, column=0, padx=10, pady=10, sticky='e')
+        self.botao_confirmar = ctk.CTkButton(self.main_frame, font=("Roboto", 20), text='Confirmar', command=self.comprar)
+        self.botao_confirmar.grid(row=7, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+        
+    def comprar(self):
+        try:
+            if db.get_quantidade_by_id_ingresso(self.id_ingresso) < 1:
+                messagebox.showerror('Erro!', 'Sem estoque')
+                return
+            
+            venda = Venda(cpf_socio=self.cpf, id_ingresso=self.id_ingresso, dt=datetime.date.today(), valor=self.valor_a_pagar, forma_pagamento=self.escolha_forma_pagamento.get(), status_pagamento='APROVADO')
+
+            db.vender_ingresso(venda=venda)
+
+            messagebox.showinfo('Sucesso!', 'Sucesso!')
+
+            self.destroy()
+    
+        except IntegrityError:
+            messagebox.showerror('Erro!', 'Só é possível comprar 1 ingresso por CPF!')
+        except:
+            messagebox.showerror('Erro!', 'Não foi possível realizar a compra, tente novamente!')
 
 
 class TelaFuncionario(ctk.CTkFrame):
@@ -394,13 +489,13 @@ class TelaFuncionario(ctk.CTkFrame):
         self.botao_equipe = ctk.CTkButton(self, text='Equipe', font=("Roboto", 20), command=self.abrirEquipe)
         self.botao_equipe.grid(row=3, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_plano = ctk.CTkButton(self, text='Plano', font=("Roboto", 20), command=self.abriPlano)
+        self.botao_plano = ctk.CTkButton(self, text='Plano', font=("Roboto", 20), command=self.abrirPlano)
         self.botao_plano.grid(row=4, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_ingresso = ctk.CTkButton(self, text='Ingresso', font=("Roboto", 20), command=self.abriIngresso)
+        self.botao_ingresso = ctk.CTkButton(self, text='Ingresso', font=("Roboto", 20), command=self.abrirIngresso)
         self.botao_ingresso.grid(row=5, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_estoque = ctk.CTkButton(self, text='Estoque', font=("Roboto", 20), command=self.abriEstoque)
+        self.botao_estoque = ctk.CTkButton(self, text='Estoque', font=("Roboto", 20), command=self.abrirEstoque)
         self.botao_estoque.grid(row=6, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
         self.botao_relatorios = ctk.CTkButton(self, text='Relatórios', font=("Roboto", 20))
@@ -414,13 +509,13 @@ class TelaFuncionario(ctk.CTkFrame):
     def abrirEquipe(self):
         tabela = TelaTabela(tabela='Equipe')
 
-    def abriPlano(self):
+    def abrirPlano(self):
         tabela = TelaTabela(tabela='Plano')
 
-    def abriIngresso(self):
+    def abrirIngresso(self):
         tabela = TelaTabela(tabela='Ingresso')
 
-    def abriEstoque(self):
+    def abrirEstoque(self):
         tabela = TelaTabela(tabela='Estoque')
 
 class TelaInfoCadastro(ctk.CTkToplevel):

@@ -72,7 +72,7 @@ class Associacao(BaseModel):
 class Venda(BaseModel):
     cpf_socio: constr(min_length=14, max_length=14)
     id_ingresso: int
-    data: date
+    dt: date
     valor: float
     forma_pagamento: constr(max_length=20)
     status_pagamento: constr(max_length=20)

@@ -450,6 +450,133 @@ class DataBase:
 
         return [r[0] for r in res] if res else []
 
+    def get_ingressos_disponiveis(self):
+        sql = '''
+        SELECT (e.nome || ' x ' || i.visitante || ' - ' || strftime('%d/%m/%Y', i.dt_evento)) as partida
+        FROM Ingresso AS i
+        INNER JOIN Equipe AS e
+        ON e.id = i.id_mandante
+        INNER JOIN Estoque
+        ON Estoque.id_ingresso = i.id
+        WHERE i.dt_evento >= CURRENT_DATE AND Estoque.quantidade > 0
+        '''
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        conn.close()
+
+        return [r[0] for r in res] if res else []
+
+    def get_id_ingresso_by_mandante_visitante_data(self, mandante, visitante, data):
+        sql = '''
+        SELECT Ingresso.id FROM Ingresso
+        INNER JOIN Equipe
+        ON Equipe.id = Ingresso.id_mandante
+        WHERE Ingresso.visitante = ?
+            AND Equipe.nome = ?
+            AND Ingresso.dt_evento = ?
+        '''
+
+        params = (visitante, mandante, data)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return res[0] if res else None
+
+    def get_desconto_from_cpf_equipe(self, cpf, id_equipe):
+        sql = '''
+        SELECT p.desconto_ingresso FROM Associacao AS a
+        INNER JOIN Plano AS p
+        ON p.categoria = a.categoria_plano
+        WHERE (CURRENT_DATE BETWEEN a.dt_associacao AND a.dt_expiracao)
+            AND a.cpf_socio = ? AND a.id_equipe = ?
+        '''
+
+        params = (cpf, id_equipe)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return res[0] if res is not None else 0
+    
+    def get_valor_inteiro_by_ingresso_id(self, id_ingresso):
+        sql = '''
+        SELECT preco_inteiro FROM Ingresso
+        WHERE id = ?
+        '''
+
+        params = (id_ingresso,)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return res[0] if res is not None else None
+    
+    def vender_ingresso(self, venda: Venda):
+        # sql = '''
+        # BEGIN;
+        # INSERT INTO Venda (cpf_socio, id_ingresso, dt, valor, forma_pagamento, status_pagamento)
+        # VALUES (?,?,?,?,?,?);
+
+        # UPDATE Estoque SET quantidade = ?
+        # WHERE Estoque.id = ?;
+        # '''
+        
+        estoque_atual = self.get_quantidade_by_id_ingresso(venda.id_ingresso)
+        id_estoque = self.get_estoque_id_by_id_ingresso(venda.id_ingresso)
+
+        with self._create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute('BEGIN;')
+            cur.execute("INSERT INTO Venda (cpf_socio, id_ingresso, dt, valor, forma_pagamento, status_pagamento) VALUES (?,?,?,?,?,?);",
+                        (venda.cpf_socio, venda.id_ingresso, venda.dt, venda.valor, venda.forma_pagamento, venda.status_pagamento))
+            cur.execute("UPDATE Estoque SET quantidade = ? WHERE Estoque.id = ?;", (estoque_atual-1, id_estoque))
+            conn.commit()
+
+    def get_quantidade_by_id_ingresso(self, id_ingresso):
+        sql = '''
+        SELECT quantidade
+        FROM Estoque
+        WHERE id_ingresso = ?
+        '''
+        params = (id_ingresso,)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return res[0] if res is not None else 0
+    
+    def get_estoque_id_by_id_ingresso(self, id_ingresso):
+        sql = '''
+        SELECT id
+        FROM Estoque
+        WHERE id_ingresso = ?
+        '''
+        params = (id_ingresso,)
+
+        conn = self._create_connection()
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        res = cur.fetchone()
+        conn.close()
+        
+        return res[0] if res is not None else 0
+
     def relatorio_receita(self):
         sql = '''
             SELECT e.nome AS time,

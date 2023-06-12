@@ -351,9 +351,9 @@ class DataBase:
             conn.commit()
 
     def update_estoque(self, estoque: Estoque):
-        sql = ''' UPDATE Estoque SET quantidade=? WHERE id=? '''
+        sql = ''' UPDATE Estoque SET quantidade=?, id_ingresso=? WHERE id=? '''
 
-        params = (estoque.quantidade, estoque.id)
+        params = (estoque.quantidade, estoque.id_ingresso, estoque.id)
 
         with self._create_connection() as conn:
             cur = conn.cursor()

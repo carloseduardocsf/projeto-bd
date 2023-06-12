@@ -622,7 +622,7 @@ class TelaTabela(ctk.CTkToplevel):
         self.botao_adicionar = ctk.CTkButton(self, text='Adicionar', font=("Roboto", 20), command=self.adicionar)
         self.botao_adicionar.grid(row=2, column=0, padx=10, pady=10, sticky='we')
 
-        self.botao_editar = ctk.CTkButton(self, text='Editar', font=("Roboto", 20))
+        self.botao_editar = ctk.CTkButton(self, text='Editar', font=("Roboto", 20), command=self.editar)
         self.botao_editar.grid(row=2, column=1, padx=10, pady=10, sticky='we')
 
         self.botao_remover = ctk.CTkButton(self, text='Remover', font=("Roboto", 20), command=self.remover)
@@ -1096,6 +1096,104 @@ class TelaTabela(ctk.CTkToplevel):
                 messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
             except:
                 messagebox.showerror('Erro!', 'Não foi possível remover!')
+
+        self.recarregar_tabela_completa()
+
+    def editar(self):
+        if self.tabela == 'Socio':
+            if len(self.input_cpf.get()) == 0 or len(self.input_nome.get()) == 0 or len(self.input_email.get()) == 0 or len(self.input_telefone.get()) == 0 or len(self.input_dt_nasimento.get()) == 0 or len(self.input_dt_cadastro.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                socio = Socio(cpf=v[0], 
+                                nome=self.input_nome.get(), 
+                                email=self.input_email.get(), 
+                                telefone=self.input_telefone.get(), 
+                                dt_nascimento=datetime.datetime.strptime(self.input_dt_nasimento.get(), "%d/%m/%Y"),
+                                dt_cadastro=datetime.datetime.strptime(self.input_dt_cadastro.get(), "%d/%m/%Y"))
+                
+                db.update_socio(socio)
+
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível editar!')
+            
+        elif self.tabela == 'Equipe':
+            if len(self.input_cnpj.get()) == 0 or len(self.input_nome.get()) == 0 or len(self.input_endereco.get()) == 0 or len(self.input_email.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+            
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                equipe = Equipe(
+                    id=v[0],
+                    cnpj=self.input_cnpj.get(),
+                    nome=self.input_nome.get(),
+                    endereco=self.input_endereco.get(),
+                    email=self.input_email.get()
+                )
+                
+                db.update_equipe(equipe)
+
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível editar!')
+            
+        elif self.tabela == 'Plano':
+            if len(self.input_categoria.get()) == 0 or len(self.input_valor.get()) == 0 or len(self.input_desconto.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                plano = Plano(
+                    categoria=v[0],
+                    valor=float(self.input_valor.get()),
+                    desconto_ingresso=float(self.input_desconto.get())
+                )
+                
+                db.update_plano(plano)
+
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível editar!')
+
+        elif self.tabela == 'Ingresso':
+            if len(self.input_visitante.get()) == 0 or len(self.input_preco.get()) == 0 or len(self.input_id_mandante.get()) == 0 or len(self.input_dt_evento.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                ingresso = Ingresso(
+                    id=v[0],
+                    visitante=self.input_visitante.get(),
+                    preco_inteiro=float(self.input_preco.get()),
+                    id_mandante=int(self.input_id_mandante.get()),
+                    dt_evento=datetime.datetime.strptime(self.input_dt_evento.get(), "%d/%m/%Y")
+                )
+                
+                db.update_ingresso(ingresso)
+
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível editar!')
+
+        elif self.tabela == 'Estoque':
+            if len(self.input_quantidade.get()) == 0 or len(self.input_id_ingresso.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                estoque = Estoque(
+                    id=v[0],
+                    quantidade=int(self.input_quantidade.get()),
+                    id_ingresso=int(self.input_id_ingresso.get())
+                )
+                
+                db.update_estoque(estoque)
+
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível editar!')
 
         self.recarregar_tabela_completa()
 

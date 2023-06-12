@@ -1,4 +1,4 @@
-from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao, Venda
+from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao, Venda, Estoque
 from dateutil.relativedelta import relativedelta
 from typing import Optional, Tuple, Union
 from sqlite3 import IntegrityError
@@ -619,7 +619,7 @@ class TelaTabela(ctk.CTkToplevel):
 
         self.recarregar_tabela_completa()
 
-        self.botao_adicionar = ctk.CTkButton(self, text='Adicionar', font=("Roboto", 20))
+        self.botao_adicionar = ctk.CTkButton(self, text='Adicionar', font=("Roboto", 20), command=self.adicionar)
         self.botao_adicionar.grid(row=2, column=0, padx=10, pady=10, sticky='we')
 
         self.botao_editar = ctk.CTkButton(self, text='Editar', font=("Roboto", 20))
@@ -826,58 +826,194 @@ class TelaTabela(ctk.CTkToplevel):
         v = self.view.item(self.index_selecionado, 'values')
 
         if self.tabela == 'Socio':
-            self.input_cpf.delete(0, tk.END)
-            self.input_nome.delete(0, tk.END)
-            self.input_email.delete(0, tk.END)
-            self.input_telefone.delete(0, tk.END)
-            self.input_dt_nasimento.delete(0, tk.END)
-            self.input_dt_cadastro.delete(0, tk.END)
+            try:
+                self.input_cpf.delete(0, tk.END)
+                self.input_nome.delete(0, tk.END)
+                self.input_email.delete(0, tk.END)
+                self.input_telefone.delete(0, tk.END)
+                self.input_dt_nasimento.delete(0, tk.END)
+                self.input_dt_cadastro.delete(0, tk.END)
 
-            self.input_cpf.insert(0, v[0])
-            self.input_nome.insert(0, v[1])
-            self.input_email.insert(0, v[2])
-            self.input_telefone.insert(0, v[3])
-            self.input_dt_nasimento.insert(0, v[4])
-            self.input_dt_cadastro.insert(0, v[5])
+                self.input_cpf.insert(0, v[0])
+                self.input_nome.insert(0, v[1])
+                self.input_email.insert(0, v[2])
+                self.input_telefone.insert(0, v[3])
+                self.input_dt_nasimento.insert(0, v[4])
+                self.input_dt_cadastro.insert(0, v[5])
+            except:
+                self.input_cpf.delete(0, tk.END)
+                self.input_nome.delete(0, tk.END)
+                self.input_email.delete(0, tk.END)
+                self.input_telefone.delete(0, tk.END)
+                self.input_dt_nasimento.delete(0, tk.END)
+                self.input_dt_cadastro.delete(0, tk.END)
+
             
         elif self.tabela == 'Equipe':
-            self.input_cnpj.delete(0, tk.END)
-            self.input_nome.delete(0, tk.END)
-            self.input_endereco.delete(0, tk.END)
-            self.input_email.delete(0, tk.END)
+                try:
+                    self.input_cnpj.delete(0, tk.END)
+                    self.input_nome.delete(0, tk.END)
+                    self.input_endereco.delete(0, tk.END)
+                    self.input_email.delete(0, tk.END)
 
-            self.input_cnpj.insert(0, v[1])
-            self.input_nome.insert(0, v[2])
-            self.input_endereco.insert(0, v[3])
-            self.input_email.insert(0, v[4])
+                    self.input_cnpj.insert(0, v[1])
+                    self.input_nome.insert(0, v[2])
+                    self.input_endereco.insert(0, v[3])
+                    self.input_email.insert(0, v[4])
+                except:
+                    self.input_cnpj.delete(0, tk.END)
+                    self.input_nome.delete(0, tk.END)
+                    self.input_endereco.delete(0, tk.END)
+                    self.input_email.delete(0, tk.END)
             
         elif self.tabela == 'Plano':
-            self.input_categoria.delete(0, tk.END)
-            self.input_valor.delete(0, tk.END)
-            self.input_desconto.delete(0, tk.END)
+            try:
+                self.input_categoria.delete(0, tk.END)
+                self.input_valor.delete(0, tk.END)
+                self.input_desconto.delete(0, tk.END)
 
-            self.input_categoria.insert(0, v[0])
-            self.input_valor.insert(0, v[1])
-            self.input_desconto.insert(0, v[2])
+                self.input_categoria.insert(0, v[0])
+                self.input_valor.insert(0, v[1])
+                self.input_desconto.insert(0, v[2])
+            except:
+                self.input_categoria.delete(0, tk.END)
+                self.input_valor.delete(0, tk.END)
+                self.input_desconto.delete(0, tk.END)
 
         elif self.tabela == 'Ingresso':
-            self.input_id_mandante.delete(0, tk.END)
-            self.input_visitante.delete(0, tk.END)
-            self.input_preco.delete(0, tk.END)
-            self.input_dt_evento.delete(0, tk.END)
+            try:
+                self.input_id_mandante.delete(0, tk.END)
+                self.input_visitante.delete(0, tk.END)
+                self.input_preco.delete(0, tk.END)
+                self.input_dt_evento.delete(0, tk.END)
 
-            self.input_id_mandante.insert(0, v[4])
-            self.input_visitante.insert(0, v[1])
-            self.input_preco.insert(0, v[3])
-            self.input_dt_evento.insert(0, v[2])
+                self.input_id_mandante.insert(0, v[4])
+                self.input_visitante.insert(0, v[1])
+                self.input_preco.insert(0, v[3])
+                self.input_dt_evento.insert(0, v[2])
+            except:
+                self.input_id_mandante.delete(0, tk.END)
+                self.input_visitante.delete(0, tk.END)
+                self.input_preco.delete(0, tk.END)
+                self.input_dt_evento.delete(0, tk.END)
 
         elif self.tabela == 'Estoque':
-            self.input_id_ingresso.delete(0, tk.END)
-            self.input_quantidade.delete(0, tk.END)
+            try:
+                self.input_id_ingresso.delete(0, tk.END)
+                self.input_quantidade.delete(0, tk.END)
 
-            self.input_id_ingresso.insert(0, v[2])
-            self.input_quantidade.insert(0, v[1])
+                self.input_id_ingresso.insert(0, v[2])
+                self.input_quantidade.insert(0, v[1])
+            except:
+                self.input_id_ingresso.delete(0, tk.END)
+                self.input_quantidade.delete(0, tk.END)
 
+    def adicionar(self):
+        if self.tabela == 'Socio':
+            if len(self.input_cpf.get()) == 0 or len(self.input_nome.get()) == 0 or len(self.input_email.get()) == 0 or len(self.input_telefone.get()) == 0 or len(self.input_dt_nasimento.get()) == 0 or len(self.input_dt_cadastro.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                socio = Socio(cpf=self.input_cpf.get(), 
+                                nome=self.input_nome.get(), 
+                                email=self.input_email.get(), 
+                                telefone=self.input_telefone.get(), 
+                                dt_nascimento=datetime.datetime.strptime(self.input_dt_nasimento.get(), "%d/%m/%Y"),
+                                dt_cadastro=datetime.datetime.strptime(self.input_dt_cadastro.get(), "%d/%m/%Y"))
+                
+                db.create_socio(socio=socio)
+
+                messagebox.showinfo('Sucesso!', 'Sócio adicionado!')
+            except IntegrityError:
+                messagebox.showerror('Erro!' , 'CPF e Email precisam ser únicos!')
+            except:
+                messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+
+        elif self.tabela == 'Equipe':
+            if len(self.input_cnpj.get()) == 0 or len(self.input_nome.get()) == 0 or len(self.input_endereco.get()) == 0 or len(self.input_email.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                equipe = Equipe(
+                    id=0,
+                    cnpj=self.input_cnpj.get(),
+                    nome=self.input_nome.get(),
+                    endereco=self.input_endereco.get(),
+                    email=self.input_email.get()
+                )
+                
+                db.create_equipe(equipe=equipe)
+
+                messagebox.showinfo('Sucesso!', 'Equipe adicionada!')
+            except IntegrityError:
+                messagebox.showerror('Erro!' , 'Email, nome e CNPJ precisam ser únicos!')
+            except:
+                messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+        elif self.tabela == 'Plano':
+            if len(self.input_categoria.get()) == 0 or len(self.input_valor.get()) == 0 or len(self.input_desconto.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                plano = Plano(
+                    categoria=self.input_categoria.get(),
+                    valor=float(self.input_valor.get()),
+                    desconto_ingresso=float(self.input_desconto.get())
+                )
+                
+                db.create_plano(plano=plano)
+
+                messagebox.showinfo('Sucesso!', 'Plano adicionado!')
+            except IntegrityError:
+                messagebox.showerror('Erro!' , 'Categoria já existe')
+            except:
+                messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+
+        elif self.tabela == 'Ingresso':
+            if len(self.input_visitante.get()) == 0 or len(self.input_preco.get()) == 0 or len(self.input_id_mandante.get()) == 0 or len(self.input_dt_evento.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                ingresso = Ingresso(
+                    id=0,
+                    visitante=self.input_visitante.get(),
+                    preco_inteiro=float(self.input_preco.get()),
+                    id_mandante=int(self.input_id_mandante.get()),
+                    dt_evento=datetime.datetime.strptime(self.input_dt_evento.get(), "%d/%m/%Y")
+                )
+                
+                db.create_ingresso(ingresso=ingresso)
+
+                messagebox.showinfo('Sucesso!', 'Ingresso adicionado!')
+            except IntegrityError:
+                messagebox.showerror('Erro!' , 'Erro de integridade!')
+            except:
+                messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+
+        elif self.tabela == 'Estoque':
+            if len(self.input_quantidade.get()) == 0 or len(self.input_id_ingresso.get()) == 0:
+                messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
+                return
+
+            try:
+                estoque = Estoque(
+                    id=0,
+                    quantidade=int(self.input_quantidade.get()),
+                    id_ingresso=int(self.input_id_ingresso.get())
+                )
+                
+                db.create_estoque(estoque=estoque)
+
+                messagebox.showinfo('Sucesso!', 'Estoque adicionado!')
+            except IntegrityError:
+                messagebox.showerror('Erro!' , 'Erro de integridade!')
+            except:
+                messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+        
+        self.recarregar_tabela_completa()
 
 class TelaNovoCadastro(ctk.CTkToplevel):
     def __init__(self, cpf):

@@ -372,7 +372,7 @@ class DataBase:
 
         estoques = list()
         for r in res:
-            estoques.append(Ingresso(id=r[0], quantidade=r[1], id_ingresso=r[2]))
+            estoques.append(Estoque(id=r[0], quantidade=r[1], id_ingresso=r[2]))
         
         return estoques
 

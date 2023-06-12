@@ -603,8 +603,18 @@ class TelaTabela(ctk.CTkToplevel):
         self.frame_campos = ctk.CTkFrame(self)
         self.frame_campos.grid(row=0, column=0, columnspan=3, pady=10, padx=10, sticky='nswe')
 
-        self.view = ttk.Treeview(self)
+        column_dict = {
+            'Socio': ('cpf', 'nome', 'email', 'telefone', 'dt_nascimento', 'dt_cadastro'),
+            'Equipe': ('id', 'cnpj', 'nome', 'endereco', 'email'),
+            'Plano': ('categoria', 'valor', 'desconto_ingresso'),
+            'Ingresso': ('id', 'visitante', 'dt_evento', 'preco_inteiro', 'id_mandante'),
+            'Estoque': ('id', 'quantidade', 'id_ingresso')
+        }
+
+        self.view = ttk.Treeview(self, columns=column_dict[self.tabela], show='headings')
         self.view.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nswe')
+
+        self.recarregar_tabela_completa()
 
         self.botao_adicionar = ctk.CTkButton(self, text='Adicionar', font=("Roboto", 20))
         self.botao_adicionar.grid(row=2, column=0, padx=10, pady=10, sticky='we')
@@ -615,7 +625,7 @@ class TelaTabela(ctk.CTkToplevel):
         self.botao_remover = ctk.CTkButton(self, text='Remover', font=("Roboto", 20))
         self.botao_remover.grid(row=2, column=2, padx=10, pady=10, sticky='we')
 
-        if tabela == 'Socio':
+        if self.tabela == 'Socio':
             self.frame_campos.columnconfigure(index=(0, 1, 2), weight=1)
 
             self.label_cpf = ctk.CTkLabel(self.frame_campos, text='CPF', font=("Roboto", 20))
@@ -648,7 +658,21 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_dt_cadastro = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_dt_cadastro.grid(row=3, column=2, padx=5, pady=10, columnspan=1, sticky='we')
 
-        elif tabela == 'Equipe':
+            self.view.heading('cpf', text='CPF')
+            self.view.heading('nome', text='Nome')
+            self.view.heading('email', text='Email')
+            self.view.heading('telefone', text='Telefone')
+            self.view.heading('dt_nascimento', text='Nascimento')
+            self.view.heading('dt_cadastro', text='Data de cadastro')
+
+            self.view.column('cpf', anchor=tk.CENTER)
+            self.view.column('nome', anchor=tk.CENTER)
+            self.view.column('email', anchor=tk.CENTER)
+            self.view.column('telefone', anchor=tk.CENTER)
+            self.view.column('dt_nascimento', anchor=tk.CENTER)
+            self.view.column('dt_cadastro', anchor=tk.CENTER)
+
+        elif self.tabela == 'Equipe':
             self.frame_campos.columnconfigure(index=(0, 1), weight=1)
 
             self.label_cnpj = ctk.CTkLabel(self.frame_campos, text='CNPJ', font=("Roboto", 20))
@@ -671,7 +695,19 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_email = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_email.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-        elif tabela == 'Plano':
+            self.view.heading('id', text='ID')
+            self.view.heading('cnpj', text='CNPJ')
+            self.view.heading('nome', text='Nome')
+            self.view.heading('endereco', text='Endereço')
+            self.view.heading('email', text='Email')
+
+            self.view.column('id', anchor=tk.CENTER)
+            self.view.column('cnpj', anchor=tk.CENTER)
+            self.view.column('nome', anchor=tk.CENTER)
+            self.view.column('endereco', anchor=tk.CENTER)
+            self.view.column('email', anchor=tk.CENTER)
+
+        elif self.tabela == 'Plano':
             self.frame_campos.columnconfigure(index=(0, 1), weight=1)
 
             self.label_valor = ctk.CTkLabel(self.frame_campos, text='Valor', font=("Roboto", 20))
@@ -684,7 +720,15 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_desconto = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_desconto.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-        elif tabela == 'Ingresso':
+            self.view.heading('categoria', text='Categoria')
+            self.view.heading('valor', text='Valor')
+            self.view.heading('desconto_ingresso', text='Desconto no ingresso')
+
+            self.view.column('categoria', anchor=tk.CENTER)
+            self.view.column('valor', anchor=tk.CENTER)
+            self.view.column('desconto_ingresso', anchor=tk.CENTER)
+
+        elif self.tabela == 'Ingresso':
             self.frame_campos.columnconfigure(index=(0, 1), weight=1)
 
             self.label_id_mandante = ctk.CTkLabel(self.frame_campos, text='ID Mandante', font=("Roboto", 20))
@@ -707,7 +751,19 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_dt_evento = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_dt_evento.grid(row=3, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-        elif tabela == 'Estoque':
+            self.view.heading('id', text='ID')
+            self.view.heading('visitante', text='Visitante')
+            self.view.heading('dt_evento', text='Data do evento')
+            self.view.heading('preco_inteiro', text='Preço inteiro')
+            self.view.heading('id_mandante', text='ID Mandante')
+
+            self.view.column('id', anchor=tk.CENTER)
+            self.view.column('visitante', anchor=tk.CENTER)
+            self.view.column('dt_evento', anchor=tk.CENTER)
+            self.view.column('preco_inteiro', anchor=tk.CENTER)
+            self.view.column('id_mandante', anchor=tk.CENTER)
+
+        elif self.tabela == 'Estoque':
             self.frame_campos.columnconfigure(index=(0, 1), weight=1)
 
             self.label_id_ingresso = ctk.CTkLabel(self.frame_campos, text='ID Ingresso', font=("Roboto", 20))
@@ -719,10 +775,44 @@ class TelaTabela(ctk.CTkToplevel):
             self.label_quantidade.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
             self.input_quantidade = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_quantidade.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
-    
-    def recarregar_tabela(self):
-        pass
 
+            self.view.heading('id', text='ID')
+            self.view.heading('quantidade', text='Quantidade')
+            self.view.heading('id_ingresso', text='id_ingresso')
+
+            self.view.column('id', anchor=tk.CENTER)
+            self.view.column('quantidade', anchor=tk.CENTER)
+            self.view.column('id_ingresso', anchor=tk.CENTER)
+    
+    def limpa_tabela(self):
+        for item in self.view.get_children():
+            self.view.delete(item)
+
+    def recarregar_tabela_completa(self):
+        self.limpa_tabela()
+
+        if self.tabela == 'Socio':
+            socios = db.get_socios()
+            for socio in socios:
+                self.view.insert('', tk.END, values=(socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento.strftime("%d/%m/%Y"), socio.dt_cadastro.strftime("%d/%m/%Y")))
+
+        elif self.tabela == 'Equipe':
+            equipes = db.get_equipes()
+            for eq in equipes:
+                self.view.insert('', tk.END, values=(eq.id, eq.cnpj, eq.nome, eq.endereco, eq.email))
+        elif self.tabela == 'Plano':
+            planos = db.get_planos()
+            for p in planos:
+                self.view.insert('', tk.END, values=(p.categoria, p.valor, p.desconto_ingresso))
+        elif self.tabela == 'Ingresso':
+            ingressos = db.get_ingresso()
+            for i in ingressos:
+                self.view.insert('', tk.END, values=(i.id, i.visitante, i.dt_evento.strftime("%d/%m/%Y"), i.preco_inteiro, i.id_mandante))
+        elif self.tabela == 'Estoque':
+            estoques = db.get_estoque()
+            for e in estoques:
+                self.view.insert('', tk.END, values=(e.id, e.quantidade, e.id_ingresso))
+                
 
 class TelaNovoCadastro(ctk.CTkToplevel):
     def __init__(self, cpf):

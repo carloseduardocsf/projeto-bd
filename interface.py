@@ -603,6 +603,8 @@ class TelaTabela(ctk.CTkToplevel):
         self.frame_campos = ctk.CTkFrame(self)
         self.frame_campos.grid(row=0, column=0, columnspan=3, pady=10, padx=10, sticky='nswe')
 
+        self.index_selecionado = None
+
         column_dict = {
             'Socio': ('cpf', 'nome', 'email', 'telefone', 'dt_nascimento', 'dt_cadastro'),
             'Equipe': ('id', 'cnpj', 'nome', 'endereco', 'email'),
@@ -613,6 +615,7 @@ class TelaTabela(ctk.CTkToplevel):
 
         self.view = ttk.Treeview(self, columns=column_dict[self.tabela], show='headings')
         self.view.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nswe')
+        self.view.bind("<<TreeviewSelect>>", self.selecionar_item)
 
         self.recarregar_tabela_completa()
 
@@ -685,10 +688,10 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_nome = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_nome.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
-            self.label_endereço = ctk.CTkLabel(self.frame_campos, text='Endereço', font=("Roboto", 20))
-            self.label_endereço.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
-            self.input_endereço = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
-            self.input_endereço.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+            self.label_endereco = ctk.CTkLabel(self.frame_campos, text='Endereço', font=("Roboto", 20))
+            self.label_endereco.grid(row=2, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_endereco = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_endereco.grid(row=3, column=0, padx=5, pady=10, columnspan=1, sticky='we')
 
             self.label_email = ctk.CTkLabel(self.frame_campos, text='Email', font=("Roboto", 20))
             self.label_email.grid(row=2, column=1, padx=5, pady=(10, 0), sticky='')
@@ -708,17 +711,22 @@ class TelaTabela(ctk.CTkToplevel):
             self.view.column('email', anchor=tk.CENTER)
 
         elif self.tabela == 'Plano':
-            self.frame_campos.columnconfigure(index=(0, 1), weight=1)
+            self.frame_campos.columnconfigure(index=(0, 1, 2), weight=1)
+
+            self.label_categoria = ctk.CTkLabel(self.frame_campos, text='Categoria', font=("Roboto", 20))
+            self.label_categoria.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.input_categoria = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
+            self.input_categoria.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
 
             self.label_valor = ctk.CTkLabel(self.frame_campos, text='Valor', font=("Roboto", 20))
-            self.label_valor.grid(row=0, column=0, padx=5, pady=(10, 0), sticky='')
+            self.label_valor.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
             self.input_valor = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
-            self.input_valor.grid(row=1, column=0, padx=5, pady=10, columnspan=1, sticky='we')
+            self.input_valor.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
 
             self.label_desconto = ctk.CTkLabel(self.frame_campos, text='Desconto', font=("Roboto", 20))
-            self.label_desconto.grid(row=0, column=1, padx=5, pady=(10, 0), sticky='')
+            self.label_desconto.grid(row=0, column=2, padx=5, pady=(10, 0), sticky='')
             self.input_desconto = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
-            self.input_desconto.grid(row=1, column=1, padx=5, pady=10, columnspan=1, sticky='we')
+            self.input_desconto.grid(row=1, column=2, padx=5, pady=10, columnspan=1, sticky='we')
 
             self.view.heading('categoria', text='Categoria')
             self.view.heading('valor', text='Valor')
@@ -811,8 +819,65 @@ class TelaTabela(ctk.CTkToplevel):
         elif self.tabela == 'Estoque':
             estoques = db.get_estoque()
             for e in estoques:
-                self.view.insert('', tk.END, values=(e.id, e.quantidade, e.id_ingresso))
-                
+                self.view.insert('', tk.END, values=(e.id, e.quantidade, e.id_ingresso)) 
+    
+    def selecionar_item(self, a):
+        self.index_selecionado = self.view.focus()
+        v = self.view.item(self.index_selecionado, 'values')
+
+        if self.tabela == 'Socio':
+            self.input_cpf.delete(0, tk.END)
+            self.input_nome.delete(0, tk.END)
+            self.input_email.delete(0, tk.END)
+            self.input_telefone.delete(0, tk.END)
+            self.input_dt_nasimento.delete(0, tk.END)
+            self.input_dt_cadastro.delete(0, tk.END)
+
+            self.input_cpf.insert(0, v[0])
+            self.input_nome.insert(0, v[1])
+            self.input_email.insert(0, v[2])
+            self.input_telefone.insert(0, v[3])
+            self.input_dt_nasimento.insert(0, v[4])
+            self.input_dt_cadastro.insert(0, v[5])
+            
+        elif self.tabela == 'Equipe':
+            self.input_cnpj.delete(0, tk.END)
+            self.input_nome.delete(0, tk.END)
+            self.input_endereco.delete(0, tk.END)
+            self.input_email.delete(0, tk.END)
+
+            self.input_cnpj.insert(0, v[1])
+            self.input_nome.insert(0, v[2])
+            self.input_endereco.insert(0, v[3])
+            self.input_email.insert(0, v[4])
+            
+        elif self.tabela == 'Plano':
+            self.input_categoria.delete(0, tk.END)
+            self.input_valor.delete(0, tk.END)
+            self.input_desconto.delete(0, tk.END)
+
+            self.input_categoria.insert(0, v[0])
+            self.input_valor.insert(0, v[1])
+            self.input_desconto.insert(0, v[2])
+
+        elif self.tabela == 'Ingresso':
+            self.input_id_mandante.delete(0, tk.END)
+            self.input_visitante.delete(0, tk.END)
+            self.input_preco.delete(0, tk.END)
+            self.input_dt_evento.delete(0, tk.END)
+
+            self.input_id_mandante.insert(0, v[4])
+            self.input_visitante.insert(0, v[1])
+            self.input_preco.insert(0, v[3])
+            self.input_dt_evento.insert(0, v[2])
+
+        elif self.tabela == 'Estoque':
+            self.input_id_ingresso.delete(0, tk.END)
+            self.input_quantidade.delete(0, tk.END)
+
+            self.input_id_ingresso.insert(0, v[2])
+            self.input_quantidade.insert(0, v[1])
+
 
 class TelaNovoCadastro(ctk.CTkToplevel):
     def __init__(self, cpf):

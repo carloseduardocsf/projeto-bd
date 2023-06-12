@@ -625,7 +625,7 @@ class TelaTabela(ctk.CTkToplevel):
         self.botao_editar = ctk.CTkButton(self, text='Editar', font=("Roboto", 20))
         self.botao_editar.grid(row=2, column=1, padx=10, pady=10, sticky='we')
 
-        self.botao_remover = ctk.CTkButton(self, text='Remover', font=("Roboto", 20))
+        self.botao_remover = ctk.CTkButton(self, text='Remover', font=("Roboto", 20), command=self.remover)
         self.botao_remover.grid(row=2, column=2, padx=10, pady=10, sticky='we')
 
         if self.tabela == 'Socio':
@@ -951,6 +951,7 @@ class TelaTabela(ctk.CTkToplevel):
                 messagebox.showerror('Erro!' , 'Email, nome e CNPJ precisam ser únicos!')
             except:
                 messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
+
         elif self.tabela == 'Plano':
             if len(self.input_categoria.get()) == 0 or len(self.input_valor.get()) == 0 or len(self.input_desconto.get()) == 0:
                 messagebox.showerror('Erro!', 'Todos os campos precisam ser preenchidos!')
@@ -1013,6 +1014,89 @@ class TelaTabela(ctk.CTkToplevel):
             except:
                 messagebox.showerror('Erro!' , 'Não foi possível adicionar!')
         
+        self.recarregar_tabela_completa()
+
+    def remover(self):
+        if self.tabela == 'Socio':
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                socio = Socio(cpf=v[0], 
+                                nome=self.input_nome.get(), 
+                                email=self.input_email.get(), 
+                                telefone=self.input_telefone.get(), 
+                                dt_nascimento=datetime.datetime.strptime(self.input_dt_nasimento.get(), "%d/%m/%Y"),
+                                dt_cadastro=datetime.datetime.strptime(self.input_dt_cadastro.get(), "%d/%m/%Y"))
+                
+                db.delete_socio(socio)
+
+                messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível remover!')
+            
+        elif self.tabela == 'Equipe':
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                equipe = Equipe(
+                    id=v[0],
+                    cnpj=self.input_cnpj.get(),
+                    nome=self.input_nome.get(),
+                    endereco=self.input_endereco.get(),
+                    email=self.input_email.get()
+                )
+                
+                db.delete_equipe(equipe)
+
+                messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível remover!')
+            
+        elif self.tabela == 'Plano':
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                plano = Plano(
+                    categoria=v[0],
+                    valor=float(self.input_valor.get()),
+                    desconto_ingresso=float(self.input_desconto.get())
+                )
+                
+                db.delete_plano(plano)
+
+                messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível remover!')
+
+        elif self.tabela == 'Ingresso':
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                ingresso = Ingresso(
+                    id=v[0],
+                    visitante=self.input_visitante.get(),
+                    preco_inteiro=float(self.input_preco.get()),
+                    id_mandante=int(self.input_id_mandante.get()),
+                    dt_evento=datetime.datetime.strptime(self.input_dt_evento.get(), "%d/%m/%Y")
+                )
+                
+                db.delete_ingresso(ingresso)
+
+                messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível remover!')
+
+        elif self.tabela == 'Estoque':
+            try:
+                v = self.view.item(self.index_selecionado, 'values')
+                estoque = Estoque(
+                    id=v[0],
+                    quantidade=int(self.input_quantidade.get()),
+                    id_ingresso=int(self.input_id_ingresso.get())
+                )
+                
+                db.delete_estoque(estoque)
+
+                messagebox.showinfo('Sucesso!', 'Removido com sucesso!')
+            except:
+                messagebox.showerror('Erro!', 'Não foi possível remover!')
+
         self.recarregar_tabela_completa()
 
 class TelaNovoCadastro(ctk.CTkToplevel):

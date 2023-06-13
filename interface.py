@@ -1,7 +1,8 @@
 from bd.models import Socio, Equipe, Plano, Ingresso, PedidosRealizados, Associacao, Venda, Estoque
 from dateutil.relativedelta import relativedelta
 from typing import Optional, Tuple, Union
-from sqlite3 import IntegrityError
+# from sqlite3 import IntegrityError
+from psycopg2 import IntegrityError
 from tkinter import messagebox
 import customtkinter as ctk
 from bd.db import DataBase
@@ -442,7 +443,7 @@ class TelaInfoIngresso(ctk.CTkToplevel):
 
         self.label_forma_pagamento = ctk.CTkLabel(self.main_frame, text='Forma de pagamento:', font=("Roboto", 20))
         self.label_forma_pagamento.grid(row=6, column=0, padx=10, pady=10, sticky='e')
-        self.escolha_forma_pagamento = ctk.CTkComboBox(self.main_frame, font=("Roboto", 20), values=['PIX', 'CRÉDITO', 'DÉBITO'])
+        self.escolha_forma_pagamento = ctk.CTkComboBox(self.main_frame, font=("Roboto", 20), values=['PIX', 'CREDITO', 'DEBITO'])
         self.escolha_forma_pagamento.grid(row=6, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
 
         self.botao_cancelar = ctk.CTkButton(self.main_frame, text='Cancelar', font=("Roboto", 20), command=self.destroy)

@@ -2,9 +2,9 @@ INSERT INTO Equipe (cnpj, nome, endereco, email)
 VALUES
     ('37.167.882/0001-94', 'Belo F.C.', 'Rua Maravilha do Contorno, 2013', 'maiordaparaiba@belo.com'),
     ('42.430.604/0001-18', 'Lagartixa E.C.', 'Rua Vale do Dinossauros, S.N.', 'contato@lagartixa.com'),
-    ('08.206.290/0001-36', 'Preá Clube', 'Rua Toca do Préa, 13', 'raposa@cg.com'),
+    ('08.206.290/0001-36', 'Prea Clube', 'Rua Toca do Prea, 13', 'raposa@cg.com'),
     ('78.091.816/0001-65', 'Doze F.C', 'Rua Doze Mais Um, S.N.', 'contato@doze.com'),
-    ('18.919.312/0001-69', 'Volante E.C.', 'Rua Mangabeirão, S.N.', 'clubevolante@macacoautino.com');
+    ('18.919.312/0001-69', 'Volante E.C.', 'Rua Mangabeirao, S.N.', 'clubevolante@macacoautino.com');
 
 INSERT INTO Socio (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
 VALUES
@@ -12,9 +12,9 @@ VALUES
     ('958.174.510-69', 'Filipe Rafael Aragão', 'filipe.rafael.aragao@supracolor.com.br', '+55 (83) 99520-4215', '1998-02-08', '2022-05-12'),
     ('947.048.408-83', 'Luís Filipe Davi Santos', 'luis.filipe.santos@maptec.com.br', '+55 (83) 98874-3690', '2003-04-18', '2022-05-14'),
     ('844.163.368-10', 'Vanessa Ayla Emilly Nascimento', 'vanessa-nascimento79@ceuazul.ind.br', '+55 (83) 99745-2011', '1990-01-14', '2022-05-16'),
-    ('950.284.076-30', 'Vitória Fátima Giovana Peixoto', 'vitoria_fatima_peixoto@yahoo.de', '+55 (83) 99644-4832', '1988-01-24', '2022-04-10'),
+    ('950.284.076-30', 'Vitoria Fatima Giovana Peixoto', 'vitoria_fatima_peixoto@yahoo.de', '+55 (83) 99644-4832', '1988-01-24', '2022-04-10'),
     ('663.567.940-54', 'Lorenzo Raul Nelson Ramos', 'lorenzoraulramos@igui.com.br', '+55 (84) 98534-2470', '1963-03-13', '2022-03-05'),
-    ('251.366.534-18', 'Cláudio Yuri Daniel Campos', 'claudio-campos70@metroquali.com.br', '+55 (84) 98334-2330', '1999-04-22', '2022-03-10'),
+    ('251.366.534-18', 'Claudio Yuri Daniel Campos', 'claudio-campos70@metroquali.com.br', '+55 (84) 98334-2330', '1999-04-22', '2022-03-10'),
     ('432.512.914-67', 'Kamilly Hadassa Drumond', 'kamilly-drumond96@johndeere.com', '+55 (83) 99713-2503', '1997-03-18', '2022-04-11'),
     ('018.147.354-29', 'Melissa Jennifer Dias', 'melissa-dias91@eletroaquila.net', '+55 (83) 98758-3528', '1997-03-17', '2022-03-10'),
     ('541.756.874-08', 'Tiago João Moura', 'tiagojoaomoura@silicotex.net', '+55 (83) 98272-5693', '1997-01-19', '2022-03-22');
@@ -27,7 +27,7 @@ VALUES
 
 INSERT INTO Ingresso (visitante, preco_inteiro, id_mandante, dt_evento)
 VALUES
-    ('Mercenários E.C.', 20.00, 1, '2023-06-15'),
+    ('Mercenarios E.C.', 20.00, 1, '2023-06-15'),
     ('Time do Sul F.C.', 30.00, 2, '2023-06-19'),
     ('Newark F.C.', 50.00, 3, '2023-06-23'),
     ('Volante E.C.', 20.00, 4, '2023-06-27');
@@ -58,9 +58,9 @@ VALUES
     ('958.174.510-69', 1, '2023-06-14', 16.00, 'PIX', 'APROVADO'),
     ('947.048.408-83', 1, '2023-06-14', 16.00, 'PIX', 'APROVADO'),
     ('844.163.368-10', 2, '2023-06-18', 3.00, 'PIX', 'APROVADO'),
-    ('950.284.076-30', 2, '2023-06-18', 12.00, 'DÉBITO', 'APROVADO'),
-    ('663.567.940-54', 3, '2023-06-22', 40.00, 'CRÉDITO', 'APROVADO'),
+    ('950.284.076-30', 2, '2023-06-18', 12.00, 'DEBITO', 'APROVADO'),
+    ('663.567.940-54', 3, '2023-06-22', 40.00, 'CREDITO', 'APROVADO'),
     ('251.366.534-18', 3, '2023-06-22', 50.00, 'PIX', 'APROVADO'),
     ('432.512.914-67', 4, '2023-06-26', 2.00, 'PIX', 'APROVADO'),
-    ('018.147.354-29', 4, '2023-06-26', 20.00, 'CRÉDITO', 'APROVADO'),
-    ('541.756.874-08', 4, '2023-06-26', 20.00, 'DÉBITO', 'APROVADO');
+    ('018.147.354-29', 4, '2023-06-26', 20.00, 'CREDITO', 'APROVADO'),
+    ('541.756.874-08', 4, '2023-06-26', 20.00, 'DEBITO', 'APROVADO');

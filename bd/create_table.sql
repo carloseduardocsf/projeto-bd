@@ -1,5 +1,7 @@
 -- Criação de tabelas do sistema
 
+DROP TABLE Socio, Equipe, Plano, Associacao, Ingresso, Estoque, Venda;
+
 CREATE TABLE Socio (
     cpf char(14) NOT NULL,
     nome varchar(60) NOT NULL,
@@ -12,7 +14,7 @@ CREATE TABLE Socio (
 );
 
 CREATE TABLE Equipe (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     cnpj char(18) NOT NULL,
     nome varchar(30) NOT NULL,
     endereco varchar(100) NOT NULL,
@@ -47,7 +49,7 @@ CREATE TABLE Associacao (
 );
 
 CREATE TABLE Ingresso (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     visitante varchar(30) NOT NULL,
     dt_evento date NOT NULL,
     preco_inteiro float NOT NULL,
@@ -58,9 +60,10 @@ CREATE TABLE Ingresso (
 );
 
 CREATE TABLE Estoque (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     quantidade INTEGER,
     id_ingresso INTEGER,
+    UNIQUE (id_ingresso),
     FOREIGN KEY (id_ingresso)
         REFERENCES Ingresso(id)
         ON DELETE CASCADE

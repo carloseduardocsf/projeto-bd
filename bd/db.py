@@ -3,6 +3,7 @@ from bd.models import (Socio, Equipe, Plano, Associacao,
                        RelatorioSociosAtivos, RelatorioGastosSocios,
                        PedidosRealizados)
 import sqlite3
+import psycopg2
 from typing import List
 
 
@@ -13,15 +14,23 @@ class DataBase:
     def _create_connection(self):
         conn = None
         try:
-            conn = sqlite3.connect(self.db_file)
-        except sqlite3.Error as e:
+            # conn = sqlite3.connect(self.db_file)
+            conn = psycopg2.connect(
+                host='localhost',
+                database='projeto-db',
+                user='postgres',
+                password='1234'
+            )
+        # except sqlite3.Error as e:
+        #     print(e)
+        except psycopg2.Error as e:
             print(e)
         
         return conn
     
     def create_socio(self, socio: Socio):
         sql = '''INSERT INTO Socio (cpf, nome, email, telefone, dt_nascimento, dt_cadastro)
-                VALUES(?,?,?,?,?,?) '''
+                VALUES(%s,%s,%s,%s,%s,%s) '''
         
         params = (socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro)
 
@@ -32,7 +41,7 @@ class DataBase:
             conn.commit()
 
     def update_socio(self, socio: Socio):
-        sql = ''' UPDATE Socio SET nome=?, email=?, telefone=?, dt_nascimento=?, dt_cadastro=? WHERE cpf=? '''
+        sql = ''' UPDATE Socio SET nome=%s, email=%s, telefone=%s, dt_nascimento=%s, dt_cadastro=%s WHERE cpf=%s '''
 
         params = (socio.nome, socio.email, socio.telefone, socio.dt_nascimento, socio.dt_cadastro, socio.cpf)
 
@@ -42,7 +51,7 @@ class DataBase:
             conn.commit()
 
     def delete_socio(self, socio: Socio):
-        sql = 'DELETE FROM Socio WHERE cpf=?'
+        sql = 'DELETE FROM Socio WHERE cpf=%s'
 
         params = (socio.cpf,)
 
@@ -53,7 +62,7 @@ class DataBase:
 
     def create_equipe(self, equipe: Equipe):
         sql = '''INSERT INTO Equipe (cnpj, nome, endereco, email)
-                VALUES(?,?,?,?) '''
+                VALUES(%s,%s,%s,%s) '''
         
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email)
 
@@ -63,7 +72,7 @@ class DataBase:
             conn.commit()
 
     def update_equipe(self, equipe: Equipe):
-        sql = ''' UPDATE Equipe SET cnpj=?, nome=?, endereco=?, email=? WHERE id=? '''
+        sql = ''' UPDATE Equipe SET cnpj=%s, nome=%s, endereco=%s, email=%s WHERE id=%s '''
 
         params = (equipe.cnpj, equipe.nome, equipe.endereco, equipe.email, equipe.id)
 
@@ -73,7 +82,7 @@ class DataBase:
             conn.commit()
 
     def delete_equipe(self, equipe: Equipe):
-        sql = 'DELETE FROM Equipe WHERE id=?'
+        sql = 'DELETE FROM Equipe WHERE id=%s'
 
         params = (equipe.id,)
 
@@ -84,7 +93,7 @@ class DataBase:
 
     def create_plano(self, plano: Plano):
         sql = '''INSERT INTO Plano (categoria, valor, desconto_ingresso)
-                VALUES(?,?,?) '''
+                VALUES(%s,%s,%s) '''
         
         params = (plano.categoria, plano.valor, plano.desconto_ingresso)
 
@@ -94,7 +103,7 @@ class DataBase:
             conn.commit()
 
     def update_plano(self, plano: Plano):
-        sql = ''' UPDATE Plano SET valor=?, desconto_ingresso=? WHERE categoria=? '''
+        sql = ''' UPDATE Plano SET valor=%s, desconto_ingresso=%s WHERE categoria=%s '''
 
         params = (plano.valor, plano.desconto_ingresso, plano.categoria)
 
@@ -104,7 +113,7 @@ class DataBase:
             conn.commit()
 
     def delete_plano(self, plano: Plano):
-        sql = 'DELETE FROM Plano WHERE categoria=?'
+        sql = 'DELETE FROM Plano WHERE categoria=%s'
 
         params = (plano.categoria,)
 
@@ -115,7 +124,7 @@ class DataBase:
     
     def create_associacao(self, associacao: Associacao):
         sql = '''INSERT INTO Associacao (cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao)
-                VALUES(?,?,?,?,?) '''
+                VALUES(%s,%s,%s,%s,%s) '''
         
         params = (associacao.cpf_socio, associacao.id_equipe, associacao.categoria_plano, associacao.dt_associacao, associacao.dt_expiracao)
 
@@ -125,7 +134,7 @@ class DataBase:
             conn.commit()
 
     def delete_associacao(self, associacao: Associacao):
-        sql = 'DELETE FROM Associacao WHERE cpf_socio=? AND id_equipe=? AND categoria_plano=?'
+        sql = 'DELETE FROM Associacao WHERE cpf_socio=%s AND id_equipe=%s AND categoria_plano=%s'
 
         params = (associacao.cpf_socio, associacao.id_equipe, associacao.categoria_plano)
 
@@ -150,7 +159,7 @@ class DataBase:
         return socios
 
     def get_socio_by_id(self, cpf):
-        sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE cpf=? '''
+        sql = ''' SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE cpf=%s '''
 
         params = (cpf,)
 
@@ -163,7 +172,7 @@ class DataBase:
         return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) if res else None
     
     def get_socio_by_name(self, nome):
-        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE nome LIKE ?'''
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE nome LIKE %s'''
         
         params = ('%' + nome + '%',)
 
@@ -196,7 +205,7 @@ class DataBase:
         return equipes
 
     def get_equipe_by_id(self, id):
-        sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipe WHERE id=? '''
+        sql = ''' SELECT id, cnpj, nome, endereco, email FROM Equipe WHERE id=%s '''
 
         params = (id,)
 
@@ -210,7 +219,7 @@ class DataBase:
     
     def get_equipe_by_name(self, nome):
         sql = '''SELECT id, cnpj, nome, endereco, email FROM
-                Equipe WHERE nome LIKE ?'''
+                Equipe WHERE nome LIKE %s'''
         
         params = ('%' + nome + '%',)
 
@@ -243,7 +252,7 @@ class DataBase:
         return planos
 
     def get_plano_by_id(self, categoria):
-        sql = ''' SELECT categoria, valor, desconto_ingresso FROM Plano WHERE categoria=? '''
+        sql = ''' SELECT categoria, valor, desconto_ingresso FROM Plano WHERE categoria=%s '''
 
         params = (categoria,)
 
@@ -271,7 +280,7 @@ class DataBase:
         return associacoes
     
     def get_associacoes_by_id(self, cpf_socio, id_equipe, categoria_plano):
-        sql = '''SELECT cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao FROM Associacao where cpf_socio = ? AND id_equipe = ? AND categoria_plano = ?'''
+        sql = '''SELECT cpf_socio, id_equipe, categoria_plano, dt_associacao, dt_expiracao FROM Associacao where cpf_socio = %s AND id_equipe = %s AND categoria_plano = %s'''
 
         params = (cpf_socio, id_equipe, categoria_plano)
 
@@ -285,7 +294,7 @@ class DataBase:
 
     def create_ingresso(self, ingresso: Ingresso):
         sql = '''INSERT INTO Ingresso (visitante, dt_evento, preco_inteiro, id_mandante)
-                VALUES(?,?,?,?) '''
+                VALUES(%s,%s,%s,%s) '''
         
         params = (ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante)
 
@@ -295,7 +304,7 @@ class DataBase:
             conn.commit()
 
     def delete_ingresso(self, ingresso: Ingresso):
-        sql = 'DELETE FROM Ingresso WHERE id=?'
+        sql = 'DELETE FROM Ingresso WHERE id=%s'
 
         params = (ingresso.id,)
 
@@ -305,7 +314,7 @@ class DataBase:
             conn.commit()
 
     def update_ingresso(self, ingresso: Ingresso):
-        sql = ''' UPDATE Ingresso SET visitante=?, dt_evento=?, preco_inteiro=?, id_mandante=? WHERE id=? '''
+        sql = ''' UPDATE Ingresso SET visitante=%s, dt_evento=%s, preco_inteiro=%s, id_mandante=%s WHERE id=%s '''
 
         params = (ingresso.visitante, ingresso.dt_evento, ingresso.preco_inteiro, ingresso.id_mandante, ingresso.id)
 
@@ -331,7 +340,7 @@ class DataBase:
 
     def create_estoque(self, estoque: Estoque):
         sql = '''INSERT INTO Estoque (quantidade, id_ingresso)
-                VALUES(?,?) '''
+                VALUES(%s,%s) '''
         
         params = (estoque.quantidade, estoque.id_ingresso)
 
@@ -341,7 +350,7 @@ class DataBase:
             conn.commit()
 
     def delete_estoque(self, estoque: Estoque):
-        sql = 'DELETE FROM Estoque WHERE id=?'
+        sql = 'DELETE FROM Estoque WHERE id=%s'
 
         params = (estoque.id,)
 
@@ -351,7 +360,7 @@ class DataBase:
             conn.commit()
 
     def update_estoque(self, estoque: Estoque):
-        sql = ''' UPDATE Estoque SET quantidade=?, id_ingresso=? WHERE id=? '''
+        sql = ''' UPDATE Estoque SET quantidade=%s, id_ingresso=%s WHERE id=%s '''
 
         params = (estoque.quantidade, estoque.id_ingresso, estoque.id)
 
@@ -378,7 +387,7 @@ class DataBase:
 
     def get_pedidos_realizdos(self, cpf):
         sql = '''
-            SELECT (e.nome || ' x ' || i.visitante || ' - ' || strftime('%d/%m/%Y', i.dt_evento)) as partida,
+            SELECT (e.nome || ' x ' || i.visitante || ' - ' || to_char(i.dt_evento, 'DD/MM/YYYY')) as partida,
                     v.dt as dt_compra, v.valor, v.forma_pagamento, v.status_pagamento FROM Venda AS v
             LEFT JOIN Socio as s
             ON v.cpf_socio = s.cpf
@@ -386,7 +395,7 @@ class DataBase:
             ON i.id = v.id_ingresso
             LEFT JOIN Equipe as e
             ON e.id = i.id_mandante
-            WHERE s.cpf = ?
+            WHERE s.cpf = %s
         '''
 
         params = (cpf,)
@@ -418,8 +427,8 @@ class DataBase:
         sql = '''
         SELECT * FROM Associacao
         WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
-            AND cpf_socio = ?
-            AND id_equipe = ?
+            AND cpf_socio = %s
+            AND id_equipe = %s
         '''
 
         params = (cpf, id_equipe)
@@ -438,7 +447,7 @@ class DataBase:
         LEFT JOIN Equipe
         ON Equipe.id = Associacao.id_equipe
         WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
-            AND cpf_socio = ?
+            AND cpf_socio = %s
         '''
         params = (cpf,)
 
@@ -452,7 +461,7 @@ class DataBase:
 
     def get_ingressos_disponiveis(self):
         sql = '''
-        SELECT (e.nome || ' x ' || i.visitante || ' - ' || strftime('%d/%m/%Y', i.dt_evento)) as partida
+        SELECT (e.nome || ' x ' || i.visitante || ' - ' || to_char(i.dt_evento, 'DD/MM/YYYY')) as partida
         FROM Ingresso AS i
         INNER JOIN Equipe AS e
         ON e.id = i.id_mandante
@@ -474,9 +483,9 @@ class DataBase:
         SELECT Ingresso.id FROM Ingresso
         INNER JOIN Equipe
         ON Equipe.id = Ingresso.id_mandante
-        WHERE Ingresso.visitante = ?
-            AND Equipe.nome = ?
-            AND Ingresso.dt_evento = ?
+        WHERE Ingresso.visitante = %s
+            AND Equipe.nome = %s
+            AND Ingresso.dt_evento = %s
         '''
 
         params = (visitante, mandante, data)
@@ -495,7 +504,7 @@ class DataBase:
         INNER JOIN Plano AS p
         ON p.categoria = a.categoria_plano
         WHERE (CURRENT_DATE BETWEEN a.dt_associacao AND a.dt_expiracao)
-            AND a.cpf_socio = ? AND a.id_equipe = ?
+            AND a.cpf_socio = %s AND a.id_equipe = %s
         '''
 
         params = (cpf, id_equipe)
@@ -511,7 +520,7 @@ class DataBase:
     def get_valor_inteiro_by_ingresso_id(self, id_ingresso):
         sql = '''
         SELECT preco_inteiro FROM Ingresso
-        WHERE id = ?
+        WHERE id = %s
         '''
 
         params = (id_ingresso,)
@@ -528,10 +537,10 @@ class DataBase:
         # sql = '''
         # BEGIN;
         # INSERT INTO Venda (cpf_socio, id_ingresso, dt, valor, forma_pagamento, status_pagamento)
-        # VALUES (?,?,?,?,?,?);
+        # VALUES (%s,%s,%s,%s,%s,%s);
 
-        # UPDATE Estoque SET quantidade = ?
-        # WHERE Estoque.id = ?;
+        # UPDATE Estoque SET quantidade = %s
+        # WHERE Estoque.id = %s;
         # '''
         
         estoque_atual = self.get_quantidade_by_id_ingresso(venda.id_ingresso)
@@ -540,16 +549,16 @@ class DataBase:
         with self._create_connection() as conn:
             cur = conn.cursor()
             cur.execute('BEGIN;')
-            cur.execute("INSERT INTO Venda (cpf_socio, id_ingresso, dt, valor, forma_pagamento, status_pagamento) VALUES (?,?,?,?,?,?);",
+            cur.execute("INSERT INTO Venda (cpf_socio, id_ingresso, dt, valor, forma_pagamento, status_pagamento) VALUES (%s,%s,%s,%s,%s,%s);",
                         (venda.cpf_socio, venda.id_ingresso, venda.dt, venda.valor, venda.forma_pagamento, venda.status_pagamento))
-            cur.execute("UPDATE Estoque SET quantidade = ? WHERE Estoque.id = ?;", (estoque_atual-1, id_estoque))
+            cur.execute("UPDATE Estoque SET quantidade = %s WHERE Estoque.id = %s;", (estoque_atual-1, id_estoque))
             conn.commit()
 
     def get_quantidade_by_id_ingresso(self, id_ingresso):
         sql = '''
         SELECT quantidade
         FROM Estoque
-        WHERE id_ingresso = ?
+        WHERE id_ingresso = %s
         '''
         params = (id_ingresso,)
 
@@ -565,7 +574,7 @@ class DataBase:
         sql = '''
         SELECT id
         FROM Estoque
-        WHERE id_ingresso = ?
+        WHERE id_ingresso = %s
         '''
         params = (id_ingresso,)
 

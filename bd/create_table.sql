@@ -1,6 +1,6 @@
 -- Criação de tabelas do sistema
 
-DROP TABLE Socio, Equipe, Plano, Associacao, Ingresso, Estoque, Venda;
+DROP TABLE Socio, Equipe, Plano, Associacao, Ingresso, Estoque, Venda CASCADE;
 
 CREATE TABLE Socio (
     cpf char(14) NOT NULL,
@@ -84,3 +84,24 @@ CREATE TABLE Venda (
         REFERENCES Ingresso(id)
         ON DELETE CASCADE
 );
+
+CREATE OR REPLACE VIEW qtd_socios_ativos AS
+    SELECT e.nome as time, COALESCE(COUNT(DISTINCT s.nome), 0) AS socios_ativos
+    FROM Equipe AS e
+    LEFT JOIN Associacao AS a
+    ON a.id_equipe = e.id
+    LEFT JOIN Socio AS s
+    ON a.cpf_socio = s.cpf
+    LEFT JOIN Plano AS p
+    ON p.categoria = a.categoria_plano
+    WHERE a.dt_expiracao >= CURRENT_DATE
+    GROUP BY e.nome;
+
+CREATE OR REPLACE VIEW faturamento_time AS
+    SELECT e.nome as time, SUM(valor) as valor_faturado FROM Venda AS v
+    INNER JOIN Ingresso AS i
+    ON i.id = v.id_ingresso
+    INNER JOIN Equipe as e
+    ON e.id = i.id_mandante
+    WHERE v.status_pagamento = 'APROVADO'
+    GROUP BY e.nome;

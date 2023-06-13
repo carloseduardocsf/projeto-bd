@@ -171,10 +171,10 @@ class DataBase:
 
         return Socio(cpf=res[0], nome=res[1], email=res[2], telefone=res[3], dt_nascimento=res[4], dt_cadastro=res[5]) if res else None
     
-    def get_socio_by_name(self, nome):
-        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE nome LIKE %s'''
+    def get_socio_by_name(self, nome: str):
+        sql = '''SELECT cpf, nome, email, telefone, dt_nascimento, dt_cadastro FROM Socio WHERE LOWER(nome) LIKE %s'''
         
-        params = ('%' + nome + '%',)
+        params = ('%' + nome.lower() + '%',)
 
         conn = self._create_connection()
         cur = conn.cursor()
@@ -586,22 +586,10 @@ class DataBase:
         
         return res[0] if res is not None else 0
 
-    def relatorio_receita(self):
+    def get_qtd_socios_ativos(self):
         sql = '''
-            SELECT e.nome AS time,
-                IFNULL(SUM(p.valor * c.qtd_meses), 0) AS receita, 
-                IFNULL(SUM(p.valor * c.qtd_meses) / SUM(c.qtd_meses), 0) AS receita_media_mensal 
-            FROM Equipes AS e
-            LEFT JOIN Associacoes AS a
-            ON a.id_equipe = e.id
-            LEFT JOIN Socio AS s
-            ON a.cpf_socio = s.cpf
-            LEFT JOIN Contratos AS c
-            ON a.id_contrato = c.id
-            LEFT JOIN Planos AS p
-            ON p.categoria = c.categoria_plano
-            GROUP BY e.nome
-            ORDER BY -receita
+        SELECT time, socios_ativos
+        FROM qtd_socios_ativos
         '''
 
         conn = self._create_connection()
@@ -609,86 +597,13 @@ class DataBase:
         cur.execute(sql)
         res = cur.fetchall()
         conn.close()
-
-        relatorio_time = list()
-        for r in res:
-            relatorio_time.append(RelatorioReceita(time=r[0], receita=r[1], receita_media_mensal=[2]))
         
-        return relatorio_time
-
-    def relatorio_socios_ativos(self):
-        sql = '''
-            SELECT e.nome as time, IFNULL(COUNT(DISTINCT s.nome), 0) AS socios_ativos
-            FROM Equipes AS e
-            LEFT JOIN Associacoes AS a
-            ON a.id_equipe = e.id
-            LEFT JOIN Socio AS s
-            ON a.cpf_socio = s.cpf
-            LEFT JOIN Contratos AS c
-            ON a.id_contrato = c.id
-            LEFT JOIN Planos AS p
-            ON p.categoria = c.categoria_plano
-            WHERE c.dt_expiracao >= CURRENT_DATE
-            GROUP BY e.nome
-        '''
-
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql)
-        res = cur.fetchall()
-        conn.close()
-
-        relatorio_time = list()
-        for r in res:
-            relatorio_time.append(RelatorioSociosAtivos(time=r[0], socios_ativos=r[1]))
-        
-        return relatorio_time
-
-    def relatorio_receita(self):
-        sql = '''
-            SELECT e.nome AS time,
-                    IFNULL(SUM(p.valor * c.qtd_meses), 0) AS receita, 
-                    IFNULL(SUM(p.valor * c.qtd_meses) / SUM(c.qtd_meses), 0) AS receita_media_mensal 
-            FROM Equipes AS e
-            LEFT JOIN Associacoes AS a
-            ON a.id_equipe = e.id
-            LEFT JOIN Socios AS s
-            ON a.cpf_socio = s.cpf
-            LEFT JOIN Contratos AS c
-            ON a.id_contrato = c.id
-            LEFT JOIN Planos AS p
-            ON p.categoria = c.categoria_plano
-            GROUP BY e.nome
-            ORDER BY -receita
-        '''
-
-        conn = self._create_connection()
-        cur = conn.cursor()
-        cur.execute(sql)
-        res = cur.fetchall()
-        conn.close()
-
-        relatorio_time = list()
-        for r in res:
-            relatorio_time.append(RelatorioReceita(time=r[0], receita=r[1], receita_media_mensal=r[2]))
-        
-        return relatorio_time
+        return res
     
-    def relatorio_gastos_socios(self):
+    def get_faturamento_time(self):
         sql = '''
-            SELECT s.nome,
-                   IFNULL(SUM(p.valor * c.qtd_meses), 0) AS gasto
-            FROM Socios AS s
-            LEFT JOIN Associacoes AS a
-            ON a.cpf_socio = s.cpf
-            LEFT JOIN Equipes AS e
-            ON e.id = a.id_equipe
-            LEFT JOIN Contratos AS c
-            ON a.id_contrato = c.id
-            LEFT JOIN Planos AS p
-            ON p.categoria = c.categoria_plano
-            GROUP BY s.nome
-            ORDER BY -gasto
+        SELECT time, valor_faturado as faturamento
+        FROM faturamento_time
         '''
 
         conn = self._create_connection()
@@ -696,10 +611,5 @@ class DataBase:
         cur.execute(sql)
         res = cur.fetchall()
         conn.close()
-
-        relatorio = list()
-        for r in res:
-            relatorio.append(RelatorioGastosSocios(nome=r[0], gasto=r[1]))
         
-        return relatorio
-    
+        return res

@@ -499,7 +499,7 @@ class TelaFuncionario(ctk.CTkFrame):
         self.botao_estoque = ctk.CTkButton(self, text='Estoque', font=("Roboto", 20), command=self.abrirEstoque)
         self.botao_estoque.grid(row=6, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
-        self.botao_relatorios = ctk.CTkButton(self, text='Relatórios', font=("Roboto", 20))
+        self.botao_relatorios = ctk.CTkButton(self, text='Relatórios', font=("Roboto", 20), command=self.abrirRelatorios)
         self.botao_relatorios.grid(row=7, column=1, columnspan=2, sticky='nswe', padx=10, pady=10)
 
         self.grid(row=0, column=1, padx=10, pady=10, sticky='nswe')
@@ -518,6 +518,80 @@ class TelaFuncionario(ctk.CTkFrame):
 
     def abrirEstoque(self):
         tabela = TelaTabela(tabela='Estoque')
+
+    def abrirRelatorios(self):
+        top = MenuRelatorios()
+
+
+class MenuRelatorios(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
+
+        self.geometry('800x600')
+        self.title('Relatórios')
+        self.attributes('-topmost', 'true')
+
+        self.rowconfigure(index=(0, 2), weight=1)
+        self.columnconfigure(index=(0, 2), weight=1)
+
+        self.titulo = ctk.CTkLabel(self, text='Relatórios', font=("Roboto", 50))
+        self.titulo.grid(row=0, column=0, columnspan=3, sticky='news')
+
+        self.botao_qtd_socios = ctk.CTkButton(self, text='Sócios ativos por time', font=("Roboto", 20), command=self.qtd_socios)
+        self.botao_qtd_socios.grid(row=1, column=1, sticky='ew')
+
+        self.botao_faturamento = ctk.CTkButton(self, text='Faturamento de ingressos por time', font=("Roboto", 20), command=self.faturamento)
+        self.botao_faturamento.grid(row=2, column=1, sticky='ew')
+    
+    def qtd_socios(self):
+        top = Relatorio(tipo='qtd_socios')
+
+    def faturamento(self):
+        top = Relatorio(tipo='faturamento')
+
+
+class Relatorio(ctk.CTkToplevel):
+    def __init__(self, tipo):
+        super().__init__()
+
+        self.tipo = tipo
+
+        self.geometry('800x600')
+        self.title('Relatórios')
+        self.attributes('-topmost', 'true')
+
+        self.rowconfigure(index=0, weight=1)
+        self.columnconfigure(index=0, weight=1)
+
+        if self.tipo == 'qtd_socios':
+            columns = ('time', 'socios_ativos')
+            self.view = ttk.Treeview(self, columns=columns, show='headings')
+            self.view.grid(row=0, column=0, sticky='news', padx=20, pady=20)
+
+            self.view.heading('time', text='Time')
+            self.view.heading('socios_ativos', text='Socios ativos')
+
+            self.view.column('time', anchor=tk.CENTER)
+            self.view.column('socios_ativos', anchor=tk.CENTER)
+
+            linhas = db.get_qtd_socios_ativos()
+            for l in linhas:
+                self.view.insert('', tk.END, values=(l[0], l[1]))
+
+        elif self.tipo == 'faturamento':
+            columns = ('time', 'faturamento')
+            self.view = ttk.Treeview(self, columns=columns, show='headings')
+            self.view.grid(row=0, column=0, sticky='news', padx=20, pady=20)
+
+            self.view.heading('time', text='Time')
+            self.view.heading('faturamento', text='Faturamento (R$)')
+
+            self.view.column('time', anchor=tk.CENTER)
+            self.view.column('faturamento', anchor=tk.CENTER)
+
+            linhas = db.get_faturamento_time()
+            for l in linhas:
+                self.view.insert('', tk.END, values=(l[0], l[1]))
 
 class TelaInfoCadastro(ctk.CTkToplevel):
     def __init__(self, socio: Socio):
@@ -662,6 +736,11 @@ class TelaTabela(ctk.CTkToplevel):
             self.input_dt_cadastro = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20))
             self.input_dt_cadastro.grid(row=3, column=2, padx=5, pady=10, columnspan=1, sticky='we')
 
+            self.input_busca = ctk.CTkEntry(self.frame_campos, font=("Roboto", 20), placeholder_text='Pesquisar por nome')
+            self.input_busca.grid(row=4, column=0, padx=5, pady=10, columnspan=2, sticky='we')
+            self.botao_busca = ctk.CTkButton(self.frame_campos, text='Buscar', font=("Roboto", 20), command=self.buscar)
+            self.botao_busca.grid(row=4, column=2, padx=10, pady=10, sticky='we')
+
             self.view.heading('cpf', text='CPF')
             self.view.heading('nome', text='Nome')
             self.view.heading('email', text='Email')
@@ -796,6 +875,13 @@ class TelaTabela(ctk.CTkToplevel):
     def limpa_tabela(self):
         for item in self.view.get_children():
             self.view.delete(item)
+    
+    def buscar(self):
+        self.limpa_tabela()
+
+        socios = db.get_socio_by_name(self.input_busca.get())
+        for socio in socios:
+            self.view.insert('', tk.END, values=(socio.cpf, socio.nome, socio.email, socio.telefone, socio.dt_nascimento.strftime("%d/%m/%Y"), socio.dt_cadastro.strftime("%d/%m/%Y")))
 
     def recarregar_tabela_completa(self):
         self.limpa_tabela()

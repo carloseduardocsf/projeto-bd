@@ -105,3 +105,27 @@ CREATE OR REPLACE VIEW faturamento_time AS
     ON e.id = i.id_mandante
     WHERE v.status_pagamento = 'APROVADO'
     GROUP BY e.nome;
+
+CREATE OR REPLACE FUNCTION check_associacao_ativa(
+    input_cpf VARCHAR,
+    input_id_equipe INTEGER
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+	assoc_count INTEGER;
+    res BOOLEAN;
+BEGIN	
+	SELECT COUNT(*) INTO assoc_count FROM Associacao
+	WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
+		AND cpf_socio = input_cpf
+		AND id_equipe = input_id_equipe;
+	
+    IF assoc_count > 0 THEN
+        res := TRUE;
+    ELSE
+        res := FALSE;
+    END IF;
+
+    RETURN res;
+END;
+$$ LANGUAGE plpgsql;

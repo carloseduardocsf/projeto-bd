@@ -424,12 +424,7 @@ class DataBase:
         return [r[0] for r in res]
 
     def check_associacao_ativa(self, cpf, id_equipe):
-        sql = '''
-        SELECT * FROM Associacao
-        WHERE (CURRENT_DATE BETWEEN dt_associacao AND dt_expiracao)
-            AND cpf_socio = %s
-            AND id_equipe = %s
-        '''
+        sql = '''SELECT check_associacao_ativa(%s, %s) AS result_boolean;'''
 
         params = (cpf, id_equipe)
 
@@ -439,7 +434,7 @@ class DataBase:
         res = cur.fetchone()
         conn.close()
         
-        return True if res else False
+        return res[0]
 
     def get_times_associados_by_cpf(self,  cpf):
         sql = '''
